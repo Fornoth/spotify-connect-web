@@ -1,0 +1,118 @@
+{% extends "bootstrap/base.html" %}
+{% block title %}Spotify Connect{% endblock %}
+{% from "bootstrap/utils.html" import flashed_messages %}
+
+{% block navbar %}
+<nav class="navbar navbar-default">
+  <div class="container-fluid">
+    <!-- Brand and toggle get grouped for better mobile display -->
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="#">Spotify Connect</a>
+    </div>
+
+    <!-- Collect the nav links, forms, and other content for toggling -->
+    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+      <ul class="nav navbar-nav navbar-right">
+        <li>
+            <p class="navbar-text">
+                Currently Active Device?: <span id="activeDevice"></span>
+            </p>
+        </li>
+        <li>
+            <a id="loginLink" href="#" data-toggle="modal" data-target="#loginModal">Login</a>
+            <a id="logoutLink" href="{{url_for('login_logout')}}" style="display:none">Logout</a>
+        </li>
+      </ul>
+    </div><!-- /.navbar-collapse -->
+  </div><!-- /.container-fluid -->
+</nav>
+{% endblock %}
+
+{% block content %}
+{{flashed_messages()}}
+<div class="container">
+    <div class="well">
+        <div style="display: none" id="player" class="row">
+          <div class="col-sm-6 col-md-4">
+            <div class="thumbnail" id="player">
+              <img id="albumCover" src="" alt="Album cover">
+              <div class="caption">
+                <h3 id="trackInfo" data-id=""></h3>
+                <h4 id="artistInfo" data-id=""></h4>
+                <h5 id="albumInfo" data-id=""></h5>
+                <div id="controls">
+                    <div class="btn-group" role="group" aria-label="playback">
+                        <button data-type="playback" data-action="shuffle" type="button" class="btn btn-default">
+                            <span class="glyphicon glyphicon-random" aria-hidden="true"></span>
+                        </button>
+                        <button data-type="playback" data-action="repeat" type="button" class="btn btn-default">
+                            <span class="glyphicon glyphicon-repeat" aria-hidden="true"></span>
+                        </button>
+                    </div>
+                    <div class="btn-group" role="group" aria-label="playback">
+                        <button data-type="playback" data-action="prev" type="button" class="btn btn-default">
+                            <span class="glyphicon glyphicon-step-backward" aria-hidden="true"></span>
+                        </button>
+                        <button data-type="playback" data-action="play" type="button" class="btn btn-default">
+                            <span class="glyphicon glyphicon-play" aria-hidden="true"></span>
+                        </button>
+                        <button style="display:none" data-type="playback" data-action="pause" type="button" class="btn btn-default">
+                            <span class="glyphicon glyphicon-pause" aria-hidden="true"></span>
+                        </button>
+                        <button data-type="playback" data-action="next" type="button" class="btn btn-default">
+                            <span class="glyphicon glyphicon-step-forward" aria-hidden="true"></span>
+                        </button>
+                    </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="loginModal" tabindex="-1" role="dialog" aria-labelledby="loginModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="myModalLabel">Login</h4>
+      </div>
+      <div class="modal-body">
+        <form action="{{url_for('login_password')}}" method="POST">
+            <div class="input-group">
+              <input type="text" class="form-control" placeholder="Username" name="username">
+            </div>
+            <br>
+            <div class="input-group">
+              <input type="password" class="form-control" placeholder="password" name="password">
+            </div>
+            </div>
+            <div class="modal-footer">
+            <button type="submit" class="btn btn-primary">Login</button>
+            </div>
+        </form>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+{{super()}}
+<script src="{{url_for('static', filename='js/main.js')}}"></script>
+{% endblock %}
+
+{% block styles %}
+{{super()}}
+<style>
+    .btn.disabled.active{
+        box-shadow: inset 0 3px 5px rgba(0,0,0,.275);
+    }
+</style>
+{% endblock %}

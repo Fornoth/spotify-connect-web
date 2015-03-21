@@ -1,0 +1,5 @@
+*.pyc
+__pycache__/
+spotify_appkey.key
+libspotify_embedded_shared.so
+venv
