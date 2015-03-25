@@ -43,11 +43,12 @@ def playback_notify(type, userdata):
     else:
         print "UNKNOWN PlaybackNotify {}".format(type)
 
-@ffi.callback('void(const void *frames, uint32_t num_frames,\
-        sp_audioformat *format, void *userdata)')
-def playback_data(frames, num_frames, format, userdata):
-    #audio_frame(frames, num_frames, format);
-    pass
+#Implemented in C
+# @ffi.callback('void(const void *frames, uint32_t num_frames,\
+        # sp_audioformat *format, void *userdata)')
+# def playback_data(frames, num_frames, format, userdata):
+    # #audio_frame(frames, num_frames, format)
+    # pass
 
 @ffi.callback('void(uint32_t millis, void *userdata)')
 def playback_seek(millis, userdata):
@@ -68,9 +69,12 @@ debug_callbacks = ffi.new('struct debug_callbacks *', [
     debug_message
 ])
 
-playback_callbacks = ffi.new('struct playback_callbacks *', [
-    playback_notify,
-    playback_data,
-    playback_seek,
-    playback_volume
-])
+# playback_callbacks = ffi.new('struct playback_callbacks *', [
+    # playback_notify,
+    # ffi.NULL,
+    # playback_seek,
+    # playback_volume
+# ])
+lib.playback_notify = playback_notify
+lib.playback_seek = playback_seek
+lib.playback_volume = playback_volume

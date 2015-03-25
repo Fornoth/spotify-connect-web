@@ -1,7 +1,7 @@
 import os
 import argparse
 from connect_ffi import ffi, lib, C
-from console_callbacks import error_callback, connection_callbacks, debug_callbacks, playback_callbacks
+from console_callbacks import error_callback, connection_callbacks, debug_callbacks #, playback_callbacks
 from utils import print_zeroconf_vars
 
 class Connect:
@@ -43,7 +43,8 @@ class Connect:
         lib.SpRegisterConnectionCallbacks(connection_callbacks, ffi.NULL)
         if self.args.debug:
             lib.SpRegisterDebugCallbacks(debug_callbacks, ffi.NULL)
-        lib.SpRegisterPlaybackCallbacks(playback_callbacks, ffi.NULL)
+        #lib.SpRegisterPlaybackCallbacks(playback_callbacks, ffi.NULL)
+        lib.setup_audio_callbacks()
 
         lib.SpPlaybackUpdateVolume(32768)
 
