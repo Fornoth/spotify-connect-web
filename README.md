@@ -1,5 +1,4 @@
 #Spotify Connect Web
-###Note: there is no audio support (yet)
 
 This is based off of the example code from https://github.com/plietar/spotify-connect
 ##Installation
