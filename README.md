@@ -2,25 +2,25 @@
 
 This is based off of the example code from https://github.com/plietar/spotify-connect
 ##Installation
-Run `pip -r requirements.txt` and also `apt-get install python-gevent` (Can't be installed from pip (on debian based systems) because of a  [bug](https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=770616)) (Other distributions can just run `pip install gevent`)
+Run `pip -r requirements.txt` and also `apt-get install python-gevent` (Can't be installed from pip (on debian based systems) because of a [bug](https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=770616)) (Other distributions can just run `pip install gevent`)
 
 ##Usage
 Tested against the rocki `libspotify_embedded_shared.so`
 ```
 usage: main.py [-h] [--debug] [--key KEY] [--username USERNAME]
-               [--password PASSWORD]
+               [--password PASSWORD] [--name NAME]
 
-Spotify Connect
+Web interface for Spotify Connect
 
 optional arguments:
   -h, --help            show this help message and exit
-  --debug, -d           enable libspotify_embedded debug output
+  --debug, -d           enable libspotify_embedded/flask debug output
   --key KEY, -k KEY     path to spotify_appkey.key
   --username USERNAME, -u USERNAME
                         your spotify username
   --password PASSWORD, -p PASSWORD
                         your spotify password
-
+  --name NAME, -n NAME  name that shows up in the spotify client
 ```
 
 `libspotify_embedded_shared.so` must be in the same directory as the python scripts
