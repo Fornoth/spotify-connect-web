@@ -21,7 +21,7 @@ invalid_login = False
 @ffi.callback('void(sp_err_t err)')
 def web_error_callback(msg):
     global invalid_login
-    if int(msg) == 8:
+    if int(msg) == lib.kSpErrorLoginBadCredentials:
         invalid_login = True
 
 connect_app = Connect(web_error_callback)

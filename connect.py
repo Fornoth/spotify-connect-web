@@ -57,7 +57,7 @@ class Connect:
 if __name__ == "__main__":
     @ffi.callback('void(sp_err_t err)')
     def console_error_callback(msg):
-        if int(msg) == 8:
+        if int(msg) == lib.kSpErrorLoginBadCredentials:
             print 'Invalid username or password'
             #sys.exit() doesn't work inside of a ffi callback
             C.exit(1)
