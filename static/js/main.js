@@ -2,6 +2,17 @@ var loggedIn = false;
 var metadataSetup = false;
 var checkLoginInterval;
 
+//Show a message on the page
+//type is either success, info, warning, or danger
+function flash(message, type) {
+    var messageBlock = $('<div class="alert" role="alert"></div>');
+    messageBlock.addClass('alert-' + type);
+    messageBlock.text(message);
+    $('#messageDiv').append(messageBlock);
+    messageBlock.fadeOut(5000, function() {
+        $(this).remove();
+    });
+}
 //Call api when a playback control button is clicked
 $('#controls button').click(function(e) {
     var type = e.currentTarget.getAttribute('data-type');
@@ -20,6 +31,18 @@ $('#controls button').click(function(e) {
     $.ajax('/api/' + type + '/' + action).fail(function(jqXHR, textStatus, error) {
         console.log("Request failed: " + error);
     });
+});
+
+$('#displayNameForm').submit(function() {
+    $('#displayNameModal').modal('hide');
+    event.preventDefault();
+
+    $.post(event.target.action, $(event.target).serialize()).done(function(data) {
+        flash('Sucessfully updated display name', 'info');
+     }).fail(function(jqXHR, textStatus, error) {
+        flash('Updating display name failed', 'danger');
+        console.log("Request failed: " + error);
+     });
 });
 
 function updateMetadata() {

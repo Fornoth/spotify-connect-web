@@ -25,6 +25,9 @@
             </p>
         </li>
         <li>
+            <a id="setDisplayNameLink" href="#" data-toggle="modal" data-target="#displayNameModal">Set Display Name</a>
+        </li>
+        <li>
             <a id="loginLink" href="#" data-toggle="modal" data-target="#loginModal">Login</a>
             <a id="logoutLink" href="{{url_for('login_logout')}}" style="display:none">Logout</a>
         </li>
@@ -35,7 +38,14 @@
 {% endblock %}
 
 {% block content %}
-{{flashed_messages()}}
+<!-- Messages -->
+<div class="container">
+  <div class="row">
+    <div class="col-md-12" id="messageDiv">
+      {{flashed_messages(container=False)}}
+    </div>
+  </div>
+</div>
 <div class="container">
     <div class="well">
         <div style="display: none" id="player" class="row">
@@ -82,7 +92,7 @@
     <div class="modal-content">
       <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-        <h4 class="modal-title" id="myModalLabel">Login</h4>
+        <h4 class="modal-title" id="loginModalLabel">Login</h4>
       </div>
       <div class="modal-body">
         <form action="{{url_for('login_password')}}" method="POST">
@@ -91,11 +101,32 @@
             </div>
             <br>
             <div class="input-group">
-              <input type="password" class="form-control" placeholder="password" name="password">
+              <input type="password" class="form-control" placeholder="Password" name="password">
             </div>
             </div>
             <div class="modal-footer">
             <button type="submit" class="btn btn-primary">Login</button>
+            </div>
+        </form>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="displayNameModal" tabindex="-1" role="dialog" aria-labelledby="displayNameModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="displayNameModalLabel">Set display name</h4>
+      </div>
+      <div class="modal-body">
+        <form action="{{url_for('info_display_name')}}" method="POST" id="displayNameForm">
+            <div class="input-group">
+              <input type="text" class="form-control" placeholder="Display name" autocomplete="off" name="displayName">
+            </div>
+            <br>
+            <div class="modal-footer">
+                <button type="submit" class="btn btn-primary">Submit</button>
             </div>
         </form>
     </div>

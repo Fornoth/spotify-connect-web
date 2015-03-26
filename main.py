@@ -88,6 +88,21 @@ def info_status():
 def info_image_url(image_uri):
     return redirect(get_image_url(str(image_uri)))
 
+@app.route('/api/info/display_name', methods=['GET', 'POST'])
+def info_display_name():
+    if request.method == 'GET':
+        return jsonify({
+            'remoteName': get_zeroconf_vars()['remoteName']
+        })
+    elif request.method == 'POST':
+        display_name = str(request.form.get('displayName'))
+        if not display_name:
+            return jsonify({
+                'error': 'displayName must be set'
+            }), 400
+        lib.SpSetDisplayName(display_name)
+        return '', 204
+
 #Login routes
 @app.route('/login/logout')
 def login_logout():

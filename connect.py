@@ -10,11 +10,12 @@ class Connect:
         if __name__ == "__main__":
             #Require username and password when used without a web server
             pass_required = True
-        arg_parser = argparse.ArgumentParser(description='Spotify Connect')
+        arg_parser = argparse.ArgumentParser(description='Web interface for Spotify Connect')
         arg_parser.add_argument('--debug', '-d', help='enable libspotify_embedded/flask debug output', action="store_true")
         arg_parser.add_argument('--key', '-k', help='path to spotify_appkey.key', default='spotify_appkey.key', type=file)
         arg_parser.add_argument('--username', '-u', help='your spotify username', required=pass_required)
         arg_parser.add_argument('--password', '-p', help='your spotify password', required=pass_required)
+        arg_parser.add_argument('--name', '-n', help='name that shows up in the spotify client', default='TestConnect')
         self.args = arg_parser.parse_args()
 
         app_key = ffi.new('uint8_t *')
@@ -22,11 +23,11 @@ class Connect:
         app_key_size = len(self.args.key.read()) + 1
 
         self.init_vars = {
-            'version': 4,
+             'version': 4,
              'buffer': C.malloc(1048576),
              'buffer_size': 1048576,
              'os_device_id': ffi.new('char[]', 'abcdef-{}'.format(os.getpid())),
-             'remoteName': ffi.new('char[]', 'TestConnect'),
+             'remoteName': ffi.new('char[]', self.args.name),
              'brandName': ffi.new('char[]', 'DummyBrand'),
              'modelName': ffi.new('char[]', 'DummyModel'),
              'deviceType': lib.kSpDeviceTypeAudioDongle,
