@@ -1,6 +1,7 @@
 var loggedIn = false;
 var metadataSetup = false;
 var checkLoginInterval;
+var metadataInterval;
 
 //Show a message on the page
 //type is either success, info, warning, or danger
@@ -88,7 +89,11 @@ function getStatus() {
             loggedIn = true;
             metadataSetup = true;
             updateMetadata();
-            setInterval(updateMetadata, 5000);
+            metadataInterval = setInterval(updateMetadata, 5000);
+        } else if (!data.logged_in) {
+            loggedIn = false;
+            metadataSetup = false;
+            clearInterval(metadataInterval);
         }
 
     }).fail(function(jqXHR, textStatus, error) {
@@ -99,7 +104,7 @@ function getStatus() {
 function checkLogin() {
     $.ajax('/login/check_login').done(function(data) {
         if (data.finished) {
-            var message = $('.container .row .col-md-12 .alert-info')
+            var message = $('.container .row .col-md-12 .alert-info:contains("Waiting for spotify")')
             message.removeClass('alert-info');
             if (data.success) {
                 message.text('Login Successful');
@@ -109,6 +114,9 @@ function checkLogin() {
                 message.text('Invalid username or password');
                 message.addClass('alert-danger');
             }
+            message.fadeOut(5000, function() {
+                message.remove();
+            });
             clearInterval(checkLoginInterval);
         }
     }).fail(function(jqXHR, textStatus, error) {
@@ -118,8 +126,8 @@ function checkLogin() {
 
 getStatus();
 
-//Check for login status
-if ($('.container .row .col-md-12 .alert-info').text() === 'Waiting for spotify') {
+//Check for login status (and check if selector is empty)
+if ($('.container .row .col-md-12 .alert-info:contains("Waiting for spotify")').length) {
     checkLoginInterval = setInterval(checkLogin, 1000);
 }
 
