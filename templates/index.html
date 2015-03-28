@@ -19,12 +19,12 @@
     <!-- Collect the nav links, forms, and other content for toggling -->
     <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
       <ul class="nav navbar-nav navbar-right">
-        <li>
+        <li data-login-required>
             <p class="navbar-text">
                 Currently Active Device?: <span id="activeDevice"></span>
             </p>
         </li>
-        <li>
+        <li data-login-required>
             <a id="setDisplayNameLink" href="#" data-toggle="modal" data-target="#displayNameModal">Set Display Name</a>
         </li>
         <li>
@@ -48,14 +48,16 @@
 </div>
 <div class="container">
     <div class="well">
-        <div style="display: none" id="player" class="row">
+        <div id="player" class="row">
           <div class="col-sm-6 col-md-4">
             <div class="thumbnail" id="player">
-              <img id="albumCover" src="" alt="Album cover">
+              <img style="display:none" id="albumCover" src="" alt="Album cover"></img>
+
               <div class="caption text-center">
-                <h3 id="trackInfo" data-id=""></h3>
-                <h4 id="artistInfo" data-id=""></h4>
-                <h5 id="albumInfo" data-id=""></h5>
+                <span id="albumCoverPlaceholder" style="font-size:100pt" class="glyphicon glyphicon-music"></span>
+                <h3 id="trackInfo" data-music-info data-id="">Loading...</h3>
+                <h4 id="artistInfo" data-music-info data-id="">Loading...</h4>
+                <h5 id="albumInfo" data-music-info data-id="">Loading...</h5>
                 <div id="controls">
                     <div class="btn-group btn-group-lg" role="group" aria-label="playback">
                         <button data-type="playback" data-action="shuffle" type="button" class="btn btn-default">
