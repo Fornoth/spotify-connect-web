@@ -1,7 +1,6 @@
 #First run the command avahi-publish-service TestConnect _spotify-connect._tcp 4000 VERSION=1.0 CPath=/login/_zeroconf
 #TODO: Add error checking
 import os
-#To install flask, run pip install flask
 from flask import Flask, request, abort, jsonify, render_template, redirect, flash, url_for
 from flask_bootstrap import Bootstrap
 from gevent.wsgi import WSGIServer
@@ -16,6 +15,7 @@ Bootstrap(app)
 app.config['BOOTSTRAP_SERVE_LOCAL'] = True
 app.secret_key = os.urandom(24)
 
+#Used by the error callback to determine login status
 invalid_login = False
 
 @ffi.callback('void(sp_err_t err)')
@@ -59,6 +59,7 @@ def playback_next():
     lib.SpPlaybackSkipToNext()
     return '', 204
 
+#TODO: Add ability to disable shuffle/repeat
 @app.route('/api/playback/shuffle')
 def playback_shuffle():
     lib.SpPlaybackEnableShuffle()
@@ -69,10 +70,28 @@ def playback_repeat():
     lib.SpPlaybackEnableRepeat()
     return '', 204
 
+@app.route('/api/playback/volume', methods=['GET'])
+def playback_volume():
+    return jsonify({
+        'volume': lib.SpPlaybackGetVolume()
+    })
+
+@app.route('/api/playback/volume', methods=['POST'], endpoint='playback_volume-post')
+def playback_volume():
+    volume = int(request.form.get('value'))
+    if not volume:
+        return jsonify({
+            'error': 'value must be set'
+        }), 400
+    lib.SpPlaybackUpdateVolume(volume)
+    return '', 204
+
 #Info routes
 @app.route('/api/info/metadata')
 def info_metadata():
-    return jsonify(get_metadata())
+    res = get_metadata()
+    res['volume'] = lib.SpPlaybackGetVolume()
+    return jsonify(res)
 
 @app.route('/api/info/status')
 def info_status():
@@ -88,20 +107,21 @@ def info_status():
 def info_image_url(image_uri):
     return redirect(get_image_url(str(image_uri)))
 
-@app.route('/api/info/display_name', methods=['GET', 'POST'])
+@app.route('/api/info/display_name', methods=['GET'])
 def info_display_name():
-    if request.method == 'GET':
+    return jsonify({
+        'remoteName': get_zeroconf_vars()['remoteName']
+    })
+
+@app.route('/api/info/display_name', methods=['POST'], endpoint='display_name-post')
+def info_display_name():
+    display_name = str(request.form.get('displayName'))
+    if not display_name:
         return jsonify({
-            'remoteName': get_zeroconf_vars()['remoteName']
-        })
-    elif request.method == 'POST':
-        display_name = str(request.form.get('displayName'))
-        if not display_name:
-            return jsonify({
-                'error': 'displayName must be set'
-            }), 400
-        lib.SpSetDisplayName(display_name)
-        return '', 204
+            'error': 'displayName must be set'
+        }), 400
+    lib.SpSetDisplayName(display_name)
+    return '', 204
 
 #Login routes
 @app.route('/login/logout')
@@ -193,7 +213,6 @@ def add_user():
     lib.SpConnectionLoginZeroConf(userName, blob, clientKey)
     #SpConnectionLoginBlob(userName, decrypted_blob)
 
-    #TODO: actually check login status
     return jsonify({
         'status': 101,
         'spotifyError': 0,

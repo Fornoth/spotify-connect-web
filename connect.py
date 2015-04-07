@@ -1,8 +1,11 @@
 import os
 import argparse
+import signal
+import sys
 from connect_ffi import ffi, lib, C
-from console_callbacks import error_callback, connection_callbacks, debug_callbacks #, playback_callbacks
+from console_callbacks import mixer, error_callback, connection_callbacks, debug_callbacks #, playback_callbacks
 from utils import print_zeroconf_vars
+
 
 class Connect:
     def __init__(self, error_cb = error_callback):
@@ -47,12 +50,20 @@ class Connect:
         #lib.SpRegisterPlaybackCallbacks(playback_callbacks, ffi.NULL)
         lib.setup_audio_callbacks()
 
-        lib.SpPlaybackUpdateVolume(32768)
+        mixer_volume = int(mixer.getvolume()[0] * 655.35)
+        lib.SpPlaybackUpdateVolume(mixer_volume)
 
         print_zeroconf_vars()
 
         if self.args.username and self.args.password:
             lib.SpConnectionLoginPassword(self.args.username, self.args.password)
+
+def signal_handler(signal, frame):
+        lib.SpConnectionLogout()
+        lib.SpFree()
+        sys.exit(0)
+
+signal.signal(signal.SIGINT, signal_handler)
 
 #Only run if script is run directly and not by an import
 if __name__ == "__main__":

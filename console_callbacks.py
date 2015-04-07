@@ -1,4 +1,8 @@
 from connect_ffi import ffi, lib
+import alsaaudio as alsa
+
+mixer_name = alsa.mixers()[0]
+mixer = alsa.Mixer(mixer_name)
 
 #Error callbacks
 @ffi.callback('void(sp_err_t err)')
@@ -27,16 +31,26 @@ def debug_message(msg, userdata):
 #Playback callbacks
 @ffi.callback('void(sp_playback_notify_t type, void *userdata)')
 def playback_notify(type, userdata):
-    if type == lib.kSpPlaybackNotifyPause:
+    if type == lib.kSpPlaybackNotifyPlay:
+        print "kSpPlaybackNotifyPlay"
+    elif type == lib.kSpPlaybackNotifyPause:
         print "kSpPlaybackNotifyPause"
     elif type == lib.kSpPlaybackNotifyTrackChanged:
         print "kSpPlaybackNotifyTrackChanged"
-    elif type == lib.kSpPlaybackNotifyPlay:
-        print "kSpPlaybackNotifyPlay"
+    elif type == lib.kSpPlaybackNotifyShuffleEnabled:
+        print "kSpPlaybackNotifyShuffleEnabled"
+    elif type == lib.kSpPlaybackNotifyShuffleDisabled:
+        print "kSpPlaybackNotifyShuffleDisabled"
+    elif type == lib.kSpPlaybackNotifyRepeatEnabled:
+        print "kSpPlaybackNotifyRepeatEnabled"
+    elif type == lib.kSpPlaybackNotifyRepeatDisabled:
+        print "kSpPlaybackNotifyRepeatDisabled"
     elif type == lib.kSpPlaybackNotifyBecameActive:
         print "kSpPlaybackNotifyBecameActive"
     elif type == lib.kSpPlaybackNotifyBecameInactive:
         print "kSpPlaybackNotifyBecameInactive"
+    elif type == lib.kSpPlaybackNotifyPlayTokenLost:
+        print "kSpPlaybackNotifyPlayTokenLost"
     elif type == lib.kSpPlaybackEventAudioFlush:
         print "kSpPlaybackEventAudioFlush"
         #audio_flush();
@@ -57,7 +71,7 @@ def playback_seek(millis, userdata):
 @ffi.callback('void(uint16_t volume, void *userdata)')
 def playback_volume(volume, userdata):
     print "playback_volume: {}".format(volume)
-    #audio_volume(volume)
+    mixer.setvolume(int(volume / 655.35))
 
 
 connection_callbacks = ffi.new('struct connection_callbacks *', [

@@ -59,6 +59,11 @@
                 <h4 id="artistInfo" data-music-info data-id="">Loading...</h4>
                 <h5 id="albumInfo" data-music-info data-id="">Loading...</h5>
                 <div id="controls">
+                    <p>
+                        <span class="glyphicon glyphicon-volume-down" aria-hidden="true"></span>
+                        <input id="volumeSlider" type="text" data-slider-id='volumeSlider' data-slider-min="0" data-slider-max="100" data-slider-step="1" data-slider-value="0" data-slider-enabled="false" data-type="playback" data-action="volume"/>
+                        <span class="glyphicon glyphicon-volume-up" aria-hidden="true"></span>
+                    </p>
                     <div class="btn-group btn-group-lg" role="group" aria-label="playback">
                         <button data-type="playback" data-action="shuffle" type="button" class="btn btn-default">
                             <span class="glyphicon glyphicon-random" aria-hidden="true"></span>
@@ -138,11 +143,13 @@
 
 {% block scripts %}
 {{super()}}
+<script src="{{url_for('static', filename='js/bootstrap-slider.min.js')}}"></script>
 <script src="{{url_for('static', filename='js/main.js')}}"></script>
 {% endblock %}
 
 {% block styles %}
 {{super()}}
+<link href="{{url_for('static', filename='css/bootstrap-slider.css')}}" rel="stylesheet">
 <style>
     .btn.disabled.active{
         box-shadow: inset 0 3px 5px rgba(0,0,0,.275);

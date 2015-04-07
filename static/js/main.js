@@ -2,6 +2,7 @@ var loggedIn = false;
 var metadataSetup = false;
 var checkLoginInterval;
 var metadataInterval;
+var slider;
 
 //Show a message on the page
 //type is either success, info, warning, or danger
@@ -14,10 +15,16 @@ function flash(message, type) {
         $(this).remove();
     });
 }
-//Call api when a playback control button is clicked
-$('#controls button').click(function(e) {
+
+function playbackControl(e) {
     var type = e.currentTarget.getAttribute('data-type');
     var action = e.currentTarget.getAttribute('data-action');
+    console.log(e);
+    var value;
+    var ajaxSettings = {
+        url: '/api/' + type + '/' + action,
+        method: 'GET'
+    }
     if (action === 'play') {
         $('[data-action=play]').hide();
         $('[data-action=pause]').show();
@@ -28,11 +35,17 @@ $('#controls button').click(function(e) {
         $('[data-action=shuffle]').toggleClass('active');
     } else if (action === 'repeat') {
         $('[data-action=repeat]').toggleClass('active');
+    } else if (action === 'volume') {
+        ajaxSettings.method = 'POST';
+        ajaxSettings.data = {value: Math.round(e.currentTarget.value * 655.35)}
     }
-    $.ajax('/api/' + type + '/' + action).fail(function(jqXHR, textStatus, error) {
+    $.ajax(ajaxSettings).fail(function(jqXHR, textStatus, error) {
         console.log("Request failed: " + error);
     });
-});
+}
+
+//Call api when a playback control button is clicked
+$('#controls button').click(playbackControl);
 
 $('#displayNameForm').submit(function() {
     $('#displayNameModal').modal('hide');
@@ -76,6 +89,8 @@ function updateMetadata() {
         album.text(metadata.album_name);
 
         albumCover.attr('src', '/api/info/image_url/' + metadata.cover_uri)
+
+        volumeSlider.slider('setValue', metadata.volume / 655.35);
     }).fail(function(jqXHR, textStatus, error) {
         console.log("Request failed: " + error);
     });
@@ -102,6 +117,13 @@ function getStatus() {
         $('#loginLink').toggle(!data.logged_in);
         $('#logoutLink').toggle(data.logged_in);
 
+        if (data.active) {
+            volumeSlider.slider('enable');
+        } else {
+            volumeSlider.slider('disable');
+        }
+
+
         if (!loggedIn && data.logged_in && !metadataSetup) {
             $('[data-login-required]').show();
             albumCover.show();
@@ -118,6 +140,7 @@ function getStatus() {
             loggedIn = false;
             metadataSetup = false;
             clearInterval(metadataInterval);
+            volumeSlider.slider('disable');
         }
 
     }).fail(function(jqXHR, textStatus, error) {
@@ -147,6 +170,12 @@ function checkLogin() {
         console.log("Request failed: " + error);
     })
 }
+
+volumeSlider = $('#volumeSlider').slider({
+	formatter: function(value) {
+		return value;
+	}
+}).on('slideStop', playbackControl);
 
 getStatus();
 
