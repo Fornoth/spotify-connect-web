@@ -26,7 +26,7 @@ def web_error_callback(msg):
 
 connect_app = Connect(web_error_callback)
 
-if os.environ.get('DEBUG') or connect.args.debug:
+if os.environ.get('DEBUG') or connect_app.args.debug:
     app.debug = True
 
 ##Routes
