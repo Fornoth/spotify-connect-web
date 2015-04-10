@@ -34,7 +34,7 @@ Also requires a spotify premium account, and the `spotify_appkey.key` (the binar
 - Running with debug output `LD_LIBRARY_PATH=$PWD python main.py -d`
 - Run with only flask debug output (flask debug output allows you to see the python exceptions that are thrown) `DEBUG=true LD_LIBRARY_PATH=$PWD python main.py`
 
-- Can also be run without the web server (Requires username and password to be passed in as parameters)  `LD_LIBRARY_PATH=$PWD python spotify.py -u username -p password`
+- Can also be run without the web server (Requires username and password to be passed in as parameters)  `LD_LIBRARY_PATH=$PWD python connect.py -u username -p password`
 
 ### Headers
 Generated with `cpp spotify.h > spotify.processed.h && sed -i 's/__extension__//g; s/void SpSetPreset(void \*);//' spotify.processed.h`
