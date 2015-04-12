@@ -2,6 +2,13 @@
 
 This is based off of the example code from https://github.com/plietar/spotify-connect
 
+## Quickstart with Docker
+(You will have to use `sudo` if not logged in as root.)
+
+* Get Docker running on your machine (`apt-get install docker.io` on Debian/Ubuntu / `pacman -S docker` on Arch). Unfortunately, Raspbian's default kernel seems to not have the required modules. ArchLinuxARM should work well though.
+* Build the container via `docker build -t spotify-connect-web .`
+* Run it via `~/run-with-docker`.
+
 ## Installation
 Run `pip install -r requirements.txt` and also `apt-get install python-gevent` (Can't be installed from pip (on debian based systems) because of a [bug](https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=770616)) (Other distributions can just run `pip install gevent`)
 
