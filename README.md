@@ -2,7 +2,7 @@
 
 This is based off of the example code from https://github.com/plietar/spotify-connect
 ## Installation
-Run `pip -r requirements.txt` and also `apt-get install python-gevent` (Can't be installed from pip (on debian based systems) because of a [bug](https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=770616)) (Other distributions can just run `pip install gevent`)
+Run `pip install -r requirements.txt` and also `apt-get install python-gevent` (Can't be installed from pip (on debian based systems) because of a [bug](https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=770616)) (Other distributions can just run `pip install gevent`)
 
 ### Pyalsaaudio
 Can either be installed via `pip` (requires the ALSA headers (`libasound2-dev` package on Debian/Ubuntu)) or the `python-alsaaudio` package on Debian/Ubuntu
