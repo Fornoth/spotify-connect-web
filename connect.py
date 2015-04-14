@@ -3,7 +3,7 @@ import argparse
 import signal
 import sys
 from connect_ffi import ffi, lib, C
-from console_callbacks import mixer, error_callback, connection_callbacks, debug_callbacks #, playback_callbacks
+from console_callbacks import mixer_arg_parser, mixer, error_callback, connection_callbacks, debug_callbacks #, playback_callbacks
 from utils import print_zeroconf_vars
 
 
@@ -13,12 +13,13 @@ class Connect:
         if __name__ == "__main__":
             #Require username and password when used without a web server
             pass_required = True
-        arg_parser = argparse.ArgumentParser(description='Web interface for Spotify Connect')
+        arg_parser = argparse.ArgumentParser(description='Web interface for Spotify Connect', parents=[mixer_arg_parser])
         arg_parser.add_argument('--debug', '-d', help='enable libspotify_embedded/flask debug output', action="store_true")
         arg_parser.add_argument('--key', '-k', help='path to spotify_appkey.key', default='spotify_appkey.key', type=file)
         arg_parser.add_argument('--username', '-u', help='your spotify username', required=pass_required)
         arg_parser.add_argument('--password', '-p', help='your spotify password', required=pass_required)
         arg_parser.add_argument('--name', '-n', help='name that shows up in the spotify client', default='TestConnect')
+        arg_parser.add_argument('--bitrate', '-b', help='Sets bitrate of audio stream (may not actually work)', choices=[90, 160, 320], type=int, default=160)
         self.args = arg_parser.parse_args()
 
         app_key = ffi.new('uint8_t *')
@@ -53,6 +54,14 @@ class Connect:
         mixer_volume = int(mixer.getvolume()[0] * 655.35)
         lib.SpPlaybackUpdateVolume(mixer_volume)
 
+        bitrates = {
+            90: lib.kSpBitrate90,
+            160: lib.kSpBitrate160,
+            320: lib.kSpBitrate320
+        }
+
+        lib.SpPlaybackSetBitrate(bitrates[self.args.bitrate])
+
         print_zeroconf_vars()
 
         if self.args.username and self.args.password:
@@ -64,6 +73,7 @@ def signal_handler(signal, frame):
         sys.exit(0)
 
 signal.signal(signal.SIGINT, signal_handler)
+signal.signal(signal.SIGTERM, signal_handler)
 
 #Only run if script is run directly and not by an import
 if __name__ == "__main__":

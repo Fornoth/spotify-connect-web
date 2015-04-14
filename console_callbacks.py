@@ -1,7 +1,15 @@
-from connect_ffi import ffi, lib
+import argparse
 import alsaaudio as alsa
+from connect_ffi import ffi, lib
 
-mixer_name = alsa.mixers()[0]
+mixer_arg_parser = argparse.ArgumentParser(add_help=False)
+mixer_arg_parser.add_argument('--mixer', '-m', help='alsa mixer name for volume control')
+args = mixer_arg_parser.parse_known_args()[0]
+
+if args.mixer:
+    mixer_name = args.mixer
+else:
+    mixer_name = alsa.mixers()[0]
 mixer = alsa.Mixer(mixer_name)
 
 #Error callbacks
