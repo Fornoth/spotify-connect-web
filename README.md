@@ -13,7 +13,7 @@ Tested against the rocki `libspotify_embedded_shared.so`
 ```
 usage: main.py [-h] [--device DEVICE] [--mixer MIXER] [--debug] [--key KEY]
                [--username USERNAME] [--password PASSWORD] [--name NAME]
-               [--bitrate {90,160,320}]
+               [--bitrate {90,160,320}] [--credentials CREDENTIALS]
 
 Web interface for Spotify Connect
 
@@ -32,6 +32,8 @@ optional arguments:
   --name NAME, -n NAME  name that shows up in the spotify client
   --bitrate {90,160,320}, -b {90,160,320}
                         Sets bitrate of audio stream (may not actually work)
+  --credentials CREDENTIALS, -c CREDENTIALS
+                        File to load and save credentials from/to
 ```
 
 `libspotify_embedded_shared.so` must be in the same directory as the python scripts.  
@@ -51,4 +53,6 @@ Generated with `cpp spotify.h > spotify.processed.h && sed -i 's/__extension__//
 Server runs on port `4000`
 
 ### Logging in
-There's a login button on the webpage to enter a username and password, or zeroconf (avahi) login can be used after executing the command `avahi-publish-service TestConnect _spotify-connect._tcp 4000 VERSION=1.0 CPath=/login/_zeroconf` (`avahi-publish-service` is in the `avahi-utils` package)
+There's a login button on the webpage to enter a username and password, or zeroconf (avahi) login can be used after executing the command `avahi-publish-service TestConnect _spotify-connect._tcp 4000 VERSION=1.0 CPath=/login/_zeroconf` (`avahi-publish-service` is in the `avahi-utils` package).
+
+After logging in successfully, a blob is sent by Spotify and saved to disk (to `credentials.json` by default), and is use to login automatically on next startup.

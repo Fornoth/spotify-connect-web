@@ -1,5 +1,6 @@
 import argparse
 import alsaaudio as alsa
+import json
 import Queue
 from threading import Thread
 from connect_ffi import ffi, lib
@@ -26,6 +27,13 @@ device.setformat(alsa.PCM_FORMAT_S16_LE)
 
 mixer = alsa.Mixer(args.mixer)
 
+def userdata_wrapper(f):
+    def inner(*args):
+        assert len(args) > 0
+        self = ffi.from_handle(args[-1])
+        return f(self, *args[:-1])
+    return inner
+
 #Error callbacks
 @ffi.callback('void(SpError error, void *userdata)')
 def error_callback(error, userdata):
@@ -33,7 +41,8 @@ def error_callback(error, userdata):
 
 #Connection callbacks
 @ffi.callback('void(SpConnectionNotify type, void *userdata)')
-def connection_notify(type, userdata):
+@userdata_wrapper
+def connection_notify(self, type):
     if type == lib.kSpConnectionNotifyLoggedIn:
         print "kSpConnectionNotifyLoggedIn"
     elif type == lib.kSpConnectionNotifyLoggedOut:
@@ -44,17 +53,24 @@ def connection_notify(type, userdata):
         print "UNKNOWN ConnectionNotify {}".format(type)
 
 @ffi.callback('void(const char *blob, void *userdata)')
-def connection_new_credentials(blob, userdata):
+@userdata_wrapper
+def connection_new_credentials(self, blob):
     print ffi.string(blob)
+    self.credentials['blob'] = ffi.string(blob)
+
+    with open(self.args.credentials, 'w') as f:
+        f.write(json.dumps(self.credentials))
 
 #Debug callbacks
 @ffi.callback('void(const char *msg, void *userdata)')
-def debug_message(msg, userdata):
+@userdata_wrapper
+def debug_message(self, msg):
     print ffi.string(msg)
 
 #Playback callbacks
 @ffi.callback('void(SpPlaybackNotify type, void *userdata)')
-def playback_notify(type, userdata):
+@userdata_wrapper
+def playback_notify(self, type):
     if type == lib.kSpPlaybackNotifyPlay:
         print "kSpPlaybackNotifyPlay"
     elif type == lib.kSpPlaybackNotifyPause:
@@ -100,7 +116,8 @@ def playback_setup():
     t.start()
 
 @ffi.callback('uint32_t(const void *data, uint32_t num_samples, SpSampleFormat *format, uint32_t *pending, void *userdata)')
-def playback_data(data, num_samples, format, pending, userdata):
+@userdata_wrapper
+def playback_data(self, data, num_samples, format, pending):
     global pending_data
 
     # Make sure we don't pass incomplete frames to alsa
@@ -123,14 +140,15 @@ def playback_data(data, num_samples, format, pending, userdata):
         pending[0] = audio_queue.qsize() * PERIODSIZE * CHANNELS
 
 @ffi.callback('void(uint32_t millis, void *userdata)')
-def playback_seek(millis, userdata):
+@userdata_wrapper
+def playback_seek(self, millis):
     print "playback_seek: {}".format(millis)
 
 @ffi.callback('void(uint16_t volume, void *userdata)')
-def playback_volume(volume, userdata):
+@userdata_wrapper
+def playback_volume(self, volume):
     print "playback_volume: {}".format(volume)
     mixer.setvolume(int(volume / 655.35))
-
 
 connection_callbacks = ffi.new('SpConnectionCallbacks *', [
     connection_notify,

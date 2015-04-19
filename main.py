@@ -140,7 +140,7 @@ def login_password():
         flash('Username or password not specified', 'danger')
     else:
         flash('Waiting for spotify', 'info')
-        lib.SpConnectionLoginPassword(username, password)
+        connect_app.login(username, password=password)
         sleep
 
     return redirect(url_for('index'))
@@ -209,9 +209,7 @@ def add_user():
     blob = str(args.get('blob'))
     clientKey = str(args.get('clientKey'))
 
-    #Username, blob, and clientKey would be passed to SpConnectionLoginZeroConf, and then SpConnectionLoginZeroConf decrypts the blob, and calls SpConnectionLoginBlob
-    lib.SpConnectionLoginZeroConf(userName, blob, clientKey)
-    #SpConnectionLoginBlob(userName, decrypted_blob)
+    connect_app.login(username, zeroconf=(blob,clientKey))
 
     return jsonify({
         'status': 101,

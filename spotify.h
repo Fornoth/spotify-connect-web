@@ -177,6 +177,7 @@ bool SpPlaybackIsShuffled(void);
 bool SpPlaybackIsRepeated(void);
 bool SpPlaybackIsActiveDevice(void);
 
+SpError SpConnectionLoginBlob(const char *username, const char *blob);
 SpError SpConnectionLoginPassword(const char *login, const char *password);
 SpError SpConnectionLoginZeroConf(const char *username, const char *blob,
         const char *clientKey);
