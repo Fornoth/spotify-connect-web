@@ -27,23 +27,25 @@ device.setformat(alsa.PCM_FORMAT_S16_LE)
 mixer = alsa.Mixer(args.mixer)
 
 #Error callbacks
-@ffi.callback('void(sp_err_t err)')
-def error_callback(err):
-    print "error_callback: {}".format(err)
+@ffi.callback('void(SpError error, void *userdata)')
+def error_callback(error, userdata):
+    print "error_callback: {}".format(error)
 
 #Connection callbacks
-@ffi.callback('void(sp_connection_notify_t type, void *userdata)')
+@ffi.callback('void(SpConnectionNotify type, void *userdata)')
 def connection_notify(type, userdata):
     if type == lib.kSpConnectionNotifyLoggedIn:
         print "kSpConnectionNotifyLoggedIn"
     elif type == lib.kSpConnectionNotifyLoggedOut:
         print "kSpConnectionNotifyLoggedOut"
+    elif type == lib.kSpConnectionNotifyTemporaryError:
+        print "kSpConnectionNotifyTemporaryError"
     else:
         print "UNKNOWN ConnectionNotify {}".format(type)
 
-@ffi.callback('void(const char *msg, void *userdata)')
-def connection_message(msg, userdata):
-    print ffi.string(msg)
+@ffi.callback('void(const char *blob, void *userdata)')
+def connection_new_credentials(blob, userdata):
+    print ffi.string(blob)
 
 #Debug callbacks
 @ffi.callback('void(const char *msg, void *userdata)')
@@ -51,7 +53,7 @@ def debug_message(msg, userdata):
     print ffi.string(msg)
 
 #Playback callbacks
-@ffi.callback('void(sp_playback_notify_t type, void *userdata)')
+@ffi.callback('void(SpPlaybackNotify type, void *userdata)')
 def playback_notify(type, userdata):
     if type == lib.kSpPlaybackNotifyPlay:
         print "kSpPlaybackNotifyPlay"
@@ -59,6 +61,10 @@ def playback_notify(type, userdata):
         print "kSpPlaybackNotifyPause"
     elif type == lib.kSpPlaybackNotifyTrackChanged:
         print "kSpPlaybackNotifyTrackChanged"
+    elif type == lib.kSpPlaybackNotifyNext:
+        print "kSpPlaybackNotifyNext"
+    elif type == lib.kSpPlaybackNotifyPrev:
+        print "kSpPlaybackNotifyPrev"
     elif type == lib.kSpPlaybackNotifyShuffleEnabled:
         print "kSpPlaybackNotifyShuffleEnabled"
     elif type == lib.kSpPlaybackNotifyShuffleDisabled:
@@ -93,14 +99,14 @@ def playback_setup():
     t.daemon = True
     t.start()
 
-@ffi.callback('int(const void *data, uint32_t num_frames, sp_audioformat *format, uint32_t *pending, void *userdata)')
-def playback_data(data, num_frames, format, pending, userdata):
+@ffi.callback('uint32_t(const void *data, uint32_t num_samples, SpSampleFormat *format, uint32_t *pending, void *userdata)')
+def playback_data(data, num_samples, format, pending, userdata):
     global pending_data
 
     # Make sure we don't pass incomplete frames to alsa
-    num_frames -= num_frames % CHANNELS
+    num_samples -= num_samples % CHANNELS
 
-    buf = pending_data + ffi.buffer(data, num_frames * SAMPLESIZE)[:]
+    buf = pending_data + ffi.buffer(data, num_samples * SAMPLESIZE)[:]
 
     try:
         total = 0
@@ -110,7 +116,7 @@ def playback_data(data, num_frames, format, pending, userdata):
             total += PERIODSIZE * CHANNELS
 
         pending_data = buf
-        return num_frames
+        return num_samples
     except Queue.Full:
         return total
     finally:
@@ -126,16 +132,16 @@ def playback_volume(volume, userdata):
     mixer.setvolume(int(volume / 655.35))
 
 
-connection_callbacks = ffi.new('struct connection_callbacks *', [
+connection_callbacks = ffi.new('SpConnectionCallbacks *', [
     connection_notify,
-    connection_message
+    connection_new_credentials
 ])
 
-debug_callbacks = ffi.new('struct debug_callbacks *', [
+debug_callbacks = ffi.new('SpDebugCallbacks *', [
     debug_message
 ])
 
-playback_callbacks = ffi.new('struct playback_callbacks *', [
+playback_callbacks = ffi.new('SpPlaybackCallbacks *', [
     playback_notify,
     playback_data,
     playback_seek,

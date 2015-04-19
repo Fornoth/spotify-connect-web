@@ -1,7 +1,7 @@
 from connect_ffi import ffi, lib
 
 def get_zeroconf_vars():
-    zeroconf_vars = ffi.new('struct vars_data *')
+    zeroconf_vars = ffi.new('SpZeroConfVars *')
     lib.SpZeroConfGetVars(zeroconf_vars)
     return convert_to_python(zeroconf_vars[0])
 
@@ -15,14 +15,14 @@ def print_zeroconf_vars():
     print "device type: {}".format(zeroconf_vars['deviceType'])
 
 def get_metadata():
-    metadata = ffi.new('struct SpMetadata *')
+    metadata = ffi.new('SpMetadata *')
     lib.SpGetMetadata(metadata, 0)
     return convert_to_python(metadata[0])
 
 def get_image_url(uri):
      image_url = ffi.new('char[512]')
      #TODO: Change back to 640
-     lib.SpGetMetadataImageURL(uri, lib.kSpImageSize160, image_url, ffi.sizeof(image_url))
+     lib.SpGetMetadataImageURL(uri, lib.kSpImageSizeSmall, image_url, ffi.sizeof(image_url))
      return ffi.string(image_url)
 
 #From https://gist.github.com/inactivist/4ef7058c2132fa16759d

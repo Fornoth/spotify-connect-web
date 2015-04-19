@@ -18,10 +18,10 @@ app.secret_key = os.urandom(24)
 #Used by the error callback to determine login status
 invalid_login = False
 
-@ffi.callback('void(sp_err_t err)')
-def web_error_callback(msg):
+@ffi.callback('void(SpError error, void *userdata)')
+def web_error_callback(error, userdata):
     global invalid_login
-    if int(msg) == lib.kSpErrorLoginBadCredentials:
+    if error == lib.kSpErrorLoginBadCredentials:
         invalid_login = True
 
 connect_app = Connect(web_error_callback)

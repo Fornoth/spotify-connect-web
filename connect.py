@@ -26,23 +26,22 @@ class Connect:
         self.args.key.readinto(ffi.buffer(app_key))
         app_key_size = len(self.args.key.read()) + 1
 
-        self.init_vars = {
+        self.config = {
              'version': 4,
              'buffer': C.malloc(0x100000),
              'buffer_size': 0x100000,
-             'os_device_id': ffi.new('char[]', 'abcdef-{}'.format(os.getpid())),
+             'app_key': app_key,
+             'app_key_size': app_key_size,
+             'deviceId': ffi.new('char[]', 'abcdef-{}'.format(os.getpid())),
              'remoteName': ffi.new('char[]', self.args.name),
              'brandName': ffi.new('char[]', 'DummyBrand'),
              'modelName': ffi.new('char[]', 'DummyModel'),
              'deviceType': lib.kSpDeviceTypeAudioDongle,
              'error_callback': error_cb,
-             'zero1': 0,
-             'app_key': app_key,
-             'app_key_size': app_key_size
+             'userdata': ffi.NULL,
         }
 
-        init = ffi.new('struct init_data *' , self.init_vars)
-
+        init = ffi.new('SpConfig *' , self.config)
         print "SpInit: {}".format(lib.SpInit(init))
 
         lib.SpRegisterConnectionCallbacks(connection_callbacks, ffi.NULL)
@@ -54,9 +53,9 @@ class Connect:
         lib.SpPlaybackUpdateVolume(mixer_volume)
 
         bitrates = {
-            90: lib.kSpBitrate90,
-            160: lib.kSpBitrate160,
-            320: lib.kSpBitrate320
+            90: lib.kSpBitrate90k,
+            160: lib.kSpBitrate160k,
+            320: lib.kSpBitrate320k
         }
 
         lib.SpPlaybackSetBitrate(bitrates[self.args.bitrate])
@@ -78,9 +77,9 @@ signal.signal(signal.SIGTERM, signal_handler)
 
 #Only run if script is run directly and not by an import
 if __name__ == "__main__":
-    @ffi.callback('void(sp_err_t err)')
-    def console_error_callback(msg):
-        if int(msg) == lib.kSpErrorLoginBadCredentials:
+    @ffi.callback('void(SpError err, void *userdata)')
+    def console_error_callback(error, userdata):
+        if error == lib.kSpErrorLoginBadCredentials:
             print 'Invalid username or password'
             #sys.exit() doesn't work inside of a ffi callback
             C.exit(1)

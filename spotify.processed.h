@@ -155,17 +155,20 @@ typedef enum {
     kSpErrorGeneralPlaybackError = 1001,
     kSpErrorPlaybackRateLimited = 1002,
     kSpErrorUnknown = 1003,
-} sp_err_t;
+} SpError;
 
 typedef enum {
     kSpConnectionNotifyLoggedIn = 0,
     kSpConnectionNotifyLoggedOut = 1,
-} sp_connection_notify_t;
+    kSpConnectionNotifyTemporaryError = 2,
+} SpConnectionNotify;
 
 typedef enum {
     kSpPlaybackNotifyPlay = 0,
     kSpPlaybackNotifyPause = 1,
     kSpPlaybackNotifyTrackChanged = 2,
+    kSpPlaybackNotifyNext = 3,
+    kSpPlaybackNotifyPrev = 4,
     kSpPlaybackNotifyShuffleEnabled = 5,
     kSpPlaybackNotifyShuffleDisabled = 6,
     kSpPlaybackNotifyRepeatEnabled = 7,
@@ -174,7 +177,7 @@ typedef enum {
     kSpPlaybackNotifyBecameInactive = 10,
     kSpPlaybackNotifyPlayTokenLost = 11,
     kSpPlaybackEventAudioFlush = 12,
-} sp_playback_notify_t;
+} SpPlaybackNotify;
 
 typedef enum {
     kSpDeviceTypeUnknown = 0,
@@ -186,56 +189,55 @@ typedef enum {
     kSpDeviceTypeAVR = 6,
     kSpDeviceTypeSTB = 7,
     kSpDeviceTypeAudioDongle = 8,
-} sp_device_type_t;
+} SpDeviceType;
 
 typedef enum {
-    SP_SAMPLETYPE_INT16_NATIVE_ENDIAN,
-} sp_sampletype;
-
-
-typedef enum {
-    kSpBitrate160 = 0,
-    kSpBitrate320 = 1,
-    kSpBitrate90 = 2
-} sp_bitrate_t;
+    kSpSampleTypeS16NativeEndian,
+} SpSampleType;
 
 typedef enum {
-    kSpImageSize160 = 0,
-    kSpImageSize320 = 1,
-    kSpImageSize640 = 2
-} sp_image_size_t;
+    kSpBitrate160k = 0,
+    kSpBitrate320k = 1,
+    kSpBitrate90k = 2,
+} SpBitrate;
+
+typedef enum {
+    kSpImageSizeSmall = 0,
+    kSpImageSizeNormal = 1,
+    kSpImageSizeLarge = 2,
+} SpImageSize;
 
 typedef struct {
     uint16_t channels;
     uint16_t sample_type;
     uint32_t sample_rate;
-} sp_audioformat;
+} SpSampleFormat;
 
-struct init_data {
+typedef struct {
     uint32_t version;
     uint8_t *buffer;
     uint32_t buffer_size;
     uint8_t *app_key;
     uint32_t app_key_size;
-    char *os_device_id;
+    char *deviceId;
     char *remoteName;
     char *brandName;
     char *modelName;
     uint32_t deviceType;
-    void (*error_callback)(sp_err_t err);
-    uint32_t zero1;
-};
+    void (*error_callback)(SpError error, void *userdata);
+    void *userdata;
+} SpConfig;
 
-struct vars_data {
+typedef struct {
     char publicKey[0x96];
     char deviceId[0x40];
     char activeUser[0x40];
     char remoteName[0x40];
     char accountReq[0x10];
     char deviceType[0x10];
-};
+} SpZeroConfVars;
 
-struct SpMetadata {
+typedef struct {
     char data0[0x100];
     char context_uri[0x80];
     char track_name[0x100];
@@ -246,75 +248,76 @@ struct SpMetadata {
     char album_uri[0x80];
     char cover_uri[0x80];
     uint32_t duration;
-};
+} SpMetadata;
 
-struct connection_callbacks {
-    void (*notify)(sp_connection_notify_t type, void *userdata);
-    void (*message)(const char *msg, void *userdata);
-};
+typedef struct {
+    uint8_t data[0x84];
+} SpPreset;
 
-struct playback_callbacks {
-    void (*notify)(sp_playback_notify_t type, void *userdata);
-    int (*data)(const void *samples, uint32_t num_frames,
-            sp_audioformat *format, uint32_t *pending,
+typedef struct {
+    void (*notify)(SpConnectionNotify notification, void *userdata);
+    void (*new_credentials)(const char *blob, void *userdata);
+} SpConnectionCallbacks;
+
+typedef struct {
+    void (*notify)(SpPlaybackNotify notification, void *userdata);
+    uint32_t (*audio_data)(const void *samples, uint32_t num_samples,
+            SpSampleFormat *format, uint32_t *pending,
             void *userdata);
     void (*seek)(uint32_t millis, void *userdata);
-    void (*volume)(uint16_t volume, void *userdata);
-};
+    void (*apply_volume)(uint16_t volume, void *userdata);
+} SpPlaybackCallbacks;
 
-struct debug_callbacks {
+typedef struct {
     void (*message)(const char *msg, void *userdata);
-};
+} SpDebugCallbacks;
 
 
-sp_err_t SpInit(const struct init_data *config);
+SpError SpInit(const SpConfig *config);
 void SpFree(void);
 
-sp_err_t SpPumpEvents(void);
+SpError SpPumpEvents(void);
 
-int SpGetMetadataValidRange(int *start, int *end);
-int SpGetMetadata(struct SpMetadata *, int offset);
-int SpGetMetadataImageURL(const char *uri, sp_image_size_t image_size,
+SpError SpGetMetadataValidRange(int *start, int *end);
+SpError SpGetMetadata(SpMetadata *, int offset);
+SpError SpGetMetadataImageURL(const char *uri, SpImageSize imageSize,
         char *url, size_t size);
 
-int SpGetPreset(void *, void *);
+SpError SpGetPreset(SpPreset *preset, size_t *size);
+SpError SpPlayPreset(const SpPreset *preset, size_t size);
 
-
-
-sp_err_t SpSetDisplayName(const char *name);
+SpError SpSetDisplayName(const char *name);
 const char *SpGetLibraryVersion(void);
 
+SpError SpZeroConfGetVars(SpZeroConfVars *vars);
 
-sp_err_t SpZeroConfGetVars(struct vars_data *vars);
+SpError SpPlaybackPlay(void);
+SpError SpPlaybackPause(void);
+SpError SpPlaybackSkipToNext(void);
+SpError SpPlaybackSkipToPrev(void);
+SpError SpPlaybackSeek(uint32_t millis);
+SpError SpPlaybackUpdateVolume(uint16_t volume);
+SpError SpPlaybackEnableShuffle(_Bool enable);
+SpError SpPlaybackEnableRepeat(_Bool enable);
+SpError SpPlaybackSetBitrate(SpBitrate bitrate);
 
-
-sp_err_t SpPlaybackPlay(void);
-sp_err_t SpPlaybackPause(void);
-sp_err_t SpPlaybackSkipToNext(void);
-sp_err_t SpPlaybackSkipToPrev(void);
-sp_err_t SpPlaybackSeek(uint32_t millis);
-sp_err_t SpPlaybackUpdateVolume(uint16_t volume);
 uint16_t SpPlaybackGetVolume(void);
-int SpPlaybackIsPlaying(void);
-int SpPlaybackIsShuffled(void);
-int SpPlaybackIsRepeated(void);
-int SpPlaybackIsActiveDevice(void);
-sp_err_t SpPlaybackEnableShuffle(_Bool enable);
-sp_err_t SpPlaybackEnableRepeat(_Bool enable);
-sp_err_t SpPlaybackSetBitrate(sp_bitrate_t bitrate);
+_Bool SpPlaybackIsPlaying(void);
+_Bool SpPlaybackIsShuffled(void);
+_Bool SpPlaybackIsRepeated(void);
+_Bool SpPlaybackIsActiveDevice(void);
 
-sp_err_t SpConnectionLoginPassword(const char *login, const char *password);
-sp_err_t SpConnectionLoginZeroConf(const char *username, const char *blob,
+SpError SpConnectionLoginPassword(const char *login, const char *password);
+SpError SpConnectionLoginZeroConf(const char *username, const char *blob,
         const char *clientKey);
-sp_err_t SpConnectionLoginOauthToken(const char *token);
+SpError SpConnectionLoginOauthToken(const char *token);
 
-int SpConnectionIsLoggedIn();
-sp_err_t SpConnectionLogout();
+_Bool SpConnectionIsLoggedIn();
+SpError SpConnectionLogout();
 
-
-sp_err_t SpRegisterConnectionCallbacks(
-        const struct connection_callbacks *callbacks, void *userdata);
-sp_err_t SpRegisterPlaybackCallbacks(
-        const struct playback_callbacks *callbacks, void *userdata);
-sp_err_t SpRegisterDebugCallbacks(
-        const struct debug_callbacks *callbacks, void *userdata);
+SpError SpRegisterConnectionCallbacks(
+        const SpConnectionCallbacks *callbacks, void *userdata);
+SpError SpRegisterPlaybackCallbacks(
+        const SpPlaybackCallbacks *callbacks, void *userdata);
+SpError SpRegisterDebugCallbacks(
+        const SpDebugCallbacks *callbacks, void *userdata);
