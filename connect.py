@@ -3,7 +3,7 @@ import argparse
 import signal
 import sys
 from connect_ffi import ffi, lib, C
-from console_callbacks import mixer_arg_parser, mixer, error_callback, connection_callbacks, debug_callbacks #, playback_callbacks
+from console_callbacks import audio_arg_parser, mixer, error_callback, connection_callbacks, debug_callbacks, playback_callbacks, playback_setup
 from utils import print_zeroconf_vars
 
 
@@ -13,7 +13,7 @@ class Connect:
         if __name__ == "__main__":
             #Require username and password when used without a web server
             pass_required = True
-        arg_parser = argparse.ArgumentParser(description='Web interface for Spotify Connect', parents=[mixer_arg_parser])
+        arg_parser = argparse.ArgumentParser(description='Web interface for Spotify Connect', parents=[audio_arg_parser])
         arg_parser.add_argument('--debug', '-d', help='enable libspotify_embedded/flask debug output', action="store_true")
         arg_parser.add_argument('--key', '-k', help='path to spotify_appkey.key', default='spotify_appkey.key', type=file)
         arg_parser.add_argument('--username', '-u', help='your spotify username', required=pass_required)
@@ -28,8 +28,8 @@ class Connect:
 
         self.init_vars = {
              'version': 4,
-             'buffer': C.malloc(1048576),
-             'buffer_size': 1048576,
+             'buffer': C.malloc(0x100000),
+             'buffer_size': 0x100000,
              'os_device_id': ffi.new('char[]', 'abcdef-{}'.format(os.getpid())),
              'remoteName': ffi.new('char[]', self.args.name),
              'brandName': ffi.new('char[]', 'DummyBrand'),
@@ -48,8 +48,7 @@ class Connect:
         lib.SpRegisterConnectionCallbacks(connection_callbacks, ffi.NULL)
         if self.args.debug:
             lib.SpRegisterDebugCallbacks(debug_callbacks, ffi.NULL)
-        #lib.SpRegisterPlaybackCallbacks(playback_callbacks, ffi.NULL)
-        lib.setup_audio_callbacks()
+        lib.SpRegisterPlaybackCallbacks(playback_callbacks, ffi.NULL)
 
         mixer_volume = int(mixer.getvolume()[0] * 655.35)
         lib.SpPlaybackUpdateVolume(mixer_volume)
@@ -61,6 +60,8 @@ class Connect:
         }
 
         lib.SpPlaybackSetBitrate(bitrates[self.args.bitrate])
+
+        playback_setup()
 
         print_zeroconf_vars()
 

@@ -255,8 +255,9 @@ struct connection_callbacks {
 
 struct playback_callbacks {
     void (*notify)(sp_playback_notify_t type, void *userdata);
-    void (*data)(const void *samples, uint32_t num_frames,
-            sp_audioformat *format, void *userdata);
+    int (*data)(const void *samples, uint32_t num_frames,
+            sp_audioformat *format, uint32_t *pending,
+            void *userdata);
     void (*seek)(uint32_t millis, void *userdata);
     void (*volume)(uint16_t volume, void *userdata);
 };

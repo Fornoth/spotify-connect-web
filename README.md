@@ -11,13 +11,18 @@ Can either be installed via `pip` (requires the ALSA headers (`libasound2-dev` p
 ## Usage
 Tested against the rocki `libspotify_embedded_shared.so`
 ```
-usage: main.py [-h] [--debug] [--key KEY] [--username USERNAME]
-               [--password PASSWORD] [--name NAME]
+usage: main.py [-h] [--device DEVICE] [--mixer MIXER] [--debug] [--key KEY]
+               [--username USERNAME] [--password PASSWORD] [--name NAME]
+               [--bitrate {90,160,320}]
 
 Web interface for Spotify Connect
 
 optional arguments:
   -h, --help            show this help message and exit
+  --device DEVICE, -D DEVICE
+                        alsa output device
+  --mixer MIXER, -m MIXER
+                        alsa mixer name for volume control
   --debug, -d           enable libspotify_embedded/flask debug output
   --key KEY, -k KEY     path to spotify_appkey.key
   --username USERNAME, -u USERNAME
@@ -25,6 +30,8 @@ optional arguments:
   --password PASSWORD, -p PASSWORD
                         your spotify password
   --name NAME, -n NAME  name that shows up in the spotify client
+  --bitrate {90,160,320}, -b {90,160,320}
+                        Sets bitrate of audio stream (may not actually work)
 ```
 
 `libspotify_embedded_shared.so` must be in the same directory as the python scripts.  

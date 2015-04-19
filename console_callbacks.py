@@ -1,16 +1,30 @@
 import argparse
 import alsaaudio as alsa
+import Queue
+from threading import Thread
 from connect_ffi import ffi, lib
 
-mixer_arg_parser = argparse.ArgumentParser(add_help=False)
-mixer_arg_parser.add_argument('--mixer', '-m', help='alsa mixer name for volume control')
-args = mixer_arg_parser.parse_known_args()[0]
+RATE = 44100
+CHANNELS = 2
+PERIODSIZE = 64
+SAMPLESIZE = 2 # 16 bit integer
+MAXPERIODS = int(0.5 * RATE / PERIODSIZE) # 0.5s Buffer
 
-if args.mixer:
-    mixer_name = args.mixer
-else:
-    mixer_name = alsa.mixers()[0]
-mixer = alsa.Mixer(mixer_name)
+audio_arg_parser = argparse.ArgumentParser(add_help=False)
+audio_arg_parser.add_argument('--device', '-D', help='alsa output device', default='default')
+audio_arg_parser.add_argument('--mixer', '-m', help='alsa mixer name for volume control', default=alsa.mixers()[0])
+args = audio_arg_parser.parse_known_args()[0]
+
+device = alsa.PCM(
+        alsa.PCM_PLAYBACK,
+        card = args.device)
+
+device.setchannels(CHANNELS)
+device.setrate(RATE)
+device.setperiodsize(PERIODSIZE)
+device.setformat(alsa.PCM_FORMAT_S16_LE)
+
+mixer = alsa.Mixer(args.mixer)
 
 #Error callbacks
 @ffi.callback('void(sp_err_t err)')
@@ -65,12 +79,42 @@ def playback_notify(type, userdata):
     else:
         print "UNKNOWN PlaybackNotify {}".format(type)
 
-#Implemented in C
-# @ffi.callback('void(const void *frames, uint32_t num_frames,\
-        # sp_audioformat *format, void *userdata)')
-# def playback_data(frames, num_frames, format, userdata):
-    # #audio_frame(frames, num_frames, format)
-    # pass
+def playback_thread(q):
+    while True:
+        data = q.get()
+        device.write(data)
+        q.task_done()
+
+audio_queue = Queue.Queue(maxsize=MAXPERIODS)
+pending_data = str()
+
+def playback_setup():
+    t = Thread(args=(audio_queue,), target=playback_thread)
+    t.daemon = True
+    t.start()
+
+@ffi.callback('int(const void *data, uint32_t num_frames, sp_audioformat *format, uint32_t *pending, void *userdata)')
+def playback_data(data, num_frames, format, pending, userdata):
+    global pending_data
+
+    # Make sure we don't pass incomplete frames to alsa
+    num_frames -= num_frames % CHANNELS
+
+    buf = pending_data + ffi.buffer(data, num_frames * SAMPLESIZE)[:]
+
+    try:
+        total = 0
+        while len(buf) >= PERIODSIZE * CHANNELS * SAMPLESIZE:
+            audio_queue.put(buf[:PERIODSIZE * CHANNELS * SAMPLESIZE], block=False)
+            buf = buf[PERIODSIZE * CHANNELS * SAMPLESIZE:]
+            total += PERIODSIZE * CHANNELS
+
+        pending_data = buf
+        return num_frames
+    except Queue.Full:
+        return total
+    finally:
+        pending[0] = audio_queue.qsize() * PERIODSIZE * CHANNELS
 
 @ffi.callback('void(uint32_t millis, void *userdata)')
 def playback_seek(millis, userdata):
@@ -91,12 +135,9 @@ debug_callbacks = ffi.new('struct debug_callbacks *', [
     debug_message
 ])
 
-# playback_callbacks = ffi.new('struct playback_callbacks *', [
-    # playback_notify,
-    # ffi.NULL,
-    # playback_seek,
-    # playback_volume
-# ])
-lib.playback_notify = playback_notify
-lib.playback_seek = playback_seek
-lib.playback_volume = playback_volume
+playback_callbacks = ffi.new('struct playback_callbacks *', [
+    playback_notify,
+    playback_data,
+    playback_seek,
+    playback_volume
+])
