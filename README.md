@@ -11,13 +11,18 @@ Can either be installed via `pip` (requires the ALSA headers (`libasound2-dev` p
 ## Usage
 Tested against the rocki `libspotify_embedded_shared.so`
 ```
-usage: main.py [-h] [--debug] [--key KEY] [--username USERNAME]
-               [--password PASSWORD] [--name NAME]
+usage: main.py [-h] [--device DEVICE] [--mixer MIXER] [--debug] [--key KEY]
+               [--username USERNAME] [--password PASSWORD] [--name NAME]
+               [--bitrate {90,160,320}] [--credentials CREDENTIALS]
 
 Web interface for Spotify Connect
 
 optional arguments:
   -h, --help            show this help message and exit
+  --device DEVICE, -D DEVICE
+                        alsa output device
+  --mixer MIXER, -m MIXER
+                        alsa mixer name for volume control
   --debug, -d           enable libspotify_embedded/flask debug output
   --key KEY, -k KEY     path to spotify_appkey.key
   --username USERNAME, -u USERNAME
@@ -25,6 +30,10 @@ optional arguments:
   --password PASSWORD, -p PASSWORD
                         your spotify password
   --name NAME, -n NAME  name that shows up in the spotify client
+  --bitrate {90,160,320}, -b {90,160,320}
+                        Sets bitrate of audio stream (may not actually work)
+  --credentials CREDENTIALS, -c CREDENTIALS
+                        File to load and save credentials from/to
 ```
 
 `libspotify_embedded_shared.so` must be in the same directory as the python scripts.  
@@ -37,11 +46,13 @@ Also requires a spotify premium account, and the `spotify_appkey.key` (the binar
 - Can also be run without the web server (Requires username and password to be passed in as parameters)  `LD_LIBRARY_PATH=$PWD python connect.py -u username -p password`
 
 ### Headers
-Generated with `cpp spotify.h > spotify.processed.h && sed -i 's/__extension__//g; s/void SpSetPreset(void \*);//' spotify.processed.h`  
+Generated with `cpp spotify.h > spotify.processed.h && sed -i 's/__extension__//g' spotify.processed.h`
 `spotify.h` was taken from from https://github.com/plietar/spotify-connect
 
 ## Web server
 Server runs on port `4000`
 
 ### Logging in
-There's a login button on the webpage to enter a username and password, or zeroconf (avahi) login can be used after executing the command `avahi-publish-service TestConnect _spotify-connect._tcp 4000 VERSION=1.0 CPath=/login/_zeroconf` (`avahi-publish-service` is in the `avahi-utils` package)
+There's a login button on the webpage to enter a username and password, or zeroconf (avahi) login can be used after executing the command `avahi-publish-service TestConnect _spotify-connect._tcp 4000 VERSION=1.0 CPath=/login/_zeroconf` (`avahi-publish-service` is in the `avahi-utils` package).
+
+After logging in successfully, a blob is sent by Spotify and saved to disk (to `credentials.json` by default), and is use to login automatically on next startup.

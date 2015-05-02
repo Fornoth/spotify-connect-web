@@ -3,3 +3,4 @@ __pycache__/
 spotify_appkey.key
 libspotify_embedded_shared.so
 venv
+credentials.json
