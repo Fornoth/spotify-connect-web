@@ -5,7 +5,7 @@ This is based off of the example code from https://github.com/plietar/spotify-co
 ## Quickstart with Docker
 (You will have to use `sudo` if not logged in as root.)
 
-* Get Docker running on your machine (`apt-get install docker.io` on Debian/Ubuntu / `pacman -S docker` on Arch). Unfortunately, Raspbian's default kernel seems to not have the required modules. ArchLinuxARM should work well though.
+* Get Docker running on your machine. (See [this preliminary documentation](https://github.com/aetherical/docker/blob/master/docs/sources/installation/raspberrypi.md) for advice.)
 * Build the container via `docker build -t spotify-connect-web .`
 * Run it via `~/run-with-docker`.
 
