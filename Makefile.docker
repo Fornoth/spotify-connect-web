@@ -1,0 +1,15 @@
+IMAGE = spotify-connect-web
+BUCKET = ${IMAGE}
+
+spotify-connect-web.tar.gz: docker-image
+	cid=$$(docker create $(IMAGE)) ;\
+	docker export $$cid | gzip -c >$@ ;\
+	status=$$? ;\
+	docker rm $$cid;\
+	exit $$status
+
+docker-image:
+	docker build -t ${IMAGE} .
+
+upload: spotify-connect-web.tar.gz
+	s3cmd --access_key=${ACCESS_KEY} --secret_key=${SECRET_KEY} put spotify-connect-web.tar.gz s3://${BUCKET}
