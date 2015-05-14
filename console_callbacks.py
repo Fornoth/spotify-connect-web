@@ -7,7 +7,7 @@ from connect_ffi import ffi, lib
 
 RATE = 44100
 CHANNELS = 2
-PERIODSIZE = 64
+PERIODSIZE = 44100 / 4 # 0.25s
 SAMPLESIZE = 2 # 16 bit integer
 MAXPERIODS = int(0.5 * RATE / PERIODSIZE) # 0.5s Buffer
 
