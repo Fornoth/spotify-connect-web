@@ -6,6 +6,7 @@ This is based off of the example code from https://github.com/plietar/spotify-co
 (You will have to use `sudo` if not logged in as root.)
 
 * Get Docker running on your machine. (See [this preliminary documentation](https://github.com/aetherical/docker/blob/master/docs/sources/installation/raspberrypi.md) for advice.)
+* Get your `spotify_appkey.key` and put it into the base directory. (See below for details.)
 * Build the container via `docker build -t spotify-connect-web .`
 * Run it via `~/run-with-docker`.
 
