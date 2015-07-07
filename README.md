@@ -2,6 +2,20 @@
 
 This is based off of the example code from https://github.com/plietar/spotify-connect
 
+## Quickstart using a pre-built chroot
+If you just want to get running, you can use a pre-built chroot with the latest version installed.
+
+    curl -O http://spotify-connect-web.s3-website.eu-central-1.amazonaws.com/spotify-connect-web.sh
+    chmod u+x spotify-connect-web.sh
+    # Download the current chroot (~ 180 MB)
+    ./spotify-connect-web.sh install
+    # Copy your `spotify_appkey.key` into the app directory. (See below for information on how to get that file.)
+    sudo cp spotify_appkey.key spotify-connect-web-chroot/usr/src/app/
+    # Run using normal cmdline options
+    ./spotify-connect-web.sh --username 12345678 --password xyz123 --bitrate 320
+
+(Btw, the chroot is built nightly from master using Docker on a C1. See the [Makefile](Makefile.docker) for details.)
+
 ## Quickstart with Docker
 (You will have to use `sudo` if not logged in as root.)
 
