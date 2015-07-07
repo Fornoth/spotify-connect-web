@@ -5,12 +5,7 @@ RUN apt-get update
 RUN apt-get -y install python-pip python-dev libffi-dev libasound2-dev python-alsaaudio python-gevent
 RUN apt-get -y install alsa-utils
 
-RUN cd /tmp \
- && wget -q http://update.myrocki.com/dlna_upnp.tar.gz \
- && tar xzf dlna_upnp.tar.gz \
- && mkdir /usr/src/app \
- && cp dlna_upnp/spotify/lib/libspotify_embedded_shared.so /usr/lib/ \
- && rm /tmp/dlna_upnp* -fR
+RUN wget -q -O /usr/lib/libspotify_embedded_shared.so https://github.com/sashahilton00/spotify-connect-resources/raw/master/Rocki%20Firmware/dlna_upnp/spotify/lib/libspotify_embedded_shared.so
 
 ADD requirements.txt /usr/src/app/requirements.txt
 WORKDIR /usr/src/app
