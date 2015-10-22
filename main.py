@@ -185,7 +185,7 @@ def get_info():
         'status': 101,
         'spotifyError': 0,
         'activeUser': zeroconf_vars['activeUser'],
-        'brandDisplayName': ffi.string(connect_app.init_vars['brandName']),
+        'brandDisplayName': ffi.string(connect_app.config['brandName']),
         'accountReq': zeroconf_vars['accountReq'],
         #Doesn't have any specific format (I think)
         'deviceID': zeroconf_vars['deviceId'],
@@ -195,7 +195,7 @@ def get_info():
         'version': '2.0.1',
         #Valid types are UNKNOWN, COMPUTER, TABLET, SMARTPHONE, SPEAKER, TV, AVR, STB and AUDIODONGLE
         'deviceType': zeroconf_vars['deviceType'],
-        'modelDisplayName': ffi.string(connect_app.init_vars['modelName']),
+        'modelDisplayName': ffi.string(connect_app.config['modelName']),
         #Status codes are ERROR-OK (not actually an error), ERROR-MISSING-ACTION, ERROR-INVALID-ACTION, ERROR-SPOTIFY-ERROR, ERROR-INVALID-ARGUMENTS, ERROR-UNKNOWN, and ERROR_LOG_FILE
         'statusString': 'ERROR-OK',
         #Name that shows up in the Spotify client
@@ -205,7 +205,7 @@ def get_info():
 def add_user():
     args = request.form
     #TODO: Add parameter verification
-    userName = str(args.get('userName'))
+    username = str(args.get('userName'))
     blob = str(args.get('blob'))
     clientKey = str(args.get('clientKey'))
 
