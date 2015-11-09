@@ -3,6 +3,7 @@ import alsaaudio as alsa
 import json
 import Queue
 from threading import Thread
+import threading
 from connect_ffi import ffi, lib
 
 RATE = 44100
@@ -16,15 +17,73 @@ audio_arg_parser.add_argument('--device', '-D', help='alsa output device', defau
 audio_arg_parser.add_argument('--mixer', '-m', help='alsa mixer name for volume control', default=alsa.mixers()[0])
 args = audio_arg_parser.parse_known_args()[0]
 
-device = alsa.PCM(
-        alsa.PCM_PLAYBACK,
-        card = args.device)
+class PlaybackSession:
 
-device.setchannels(CHANNELS)
-device.setrate(RATE)
-device.setperiodsize(PERIODSIZE)
-device.setformat(alsa.PCM_FORMAT_S16_LE)
+    def __init__(self):
+        self._active = False
 
+    def is_active(self):
+        return self._active
+
+    def activate(self):
+        self._active = True
+
+    def deactivate(self):
+        self._active = False
+
+class AlsaSink:
+
+    def __init__(self, session, args):
+        self._lock = threading.Lock()
+        self._args = args
+        self._session = session
+        self._device = None
+
+    def acquire(self):
+        if self._session.is_active():
+            try:
+                pcm = alsa.PCM(
+                    type = alsa.PCM_PLAYBACK,
+                    mode = alsa.PCM_NORMAL,
+                    card = self._args.device)
+
+                pcm.setchannels(CHANNELS)
+                pcm.setrate(RATE)
+                pcm.setperiodsize(PERIODSIZE)
+                pcm.setformat(alsa.PCM_FORMAT_S16_LE)
+
+                self._device = pcm
+                print "AlsaSink: device acquired"
+            except alsa.ALSAAudioError as error:
+                print "Unable to acquire device: ", error
+                self.release()
+
+
+    def release(self):
+        if self._session.is_active() and self._device is not None:
+            self._lock.acquire()
+            try:
+                if self._device is not None:
+                    self._device.close()
+                    self._device = None
+                    print "AlsaSink: device released"
+            finally:
+                self._lock.release()
+
+    def write(self, data):
+        if self._session.is_active() and self._device is not None:
+            # write is asynchronous, so, we are in race with releasing the device
+            self._lock.acquire()
+            try:
+                if self._device is not None:
+                    self._device.write(data)
+            except alsa.ALSAAudioError as error:
+                print "Ups! Some badness happened: ", error
+            finally:
+                self._lock.release()
+
+session = PlaybackSession()
+device = AlsaSink(session, args)
 mixer = alsa.Mixer(args.mixer)
 
 def userdata_wrapper(f):
@@ -73,8 +132,10 @@ def debug_message(self, msg):
 def playback_notify(self, type):
     if type == lib.kSpPlaybackNotifyPlay:
         print "kSpPlaybackNotifyPlay"
+        device.acquire()
     elif type == lib.kSpPlaybackNotifyPause:
         print "kSpPlaybackNotifyPause"
+        device.release()
     elif type == lib.kSpPlaybackNotifyTrackChanged:
         print "kSpPlaybackNotifyTrackChanged"
     elif type == lib.kSpPlaybackNotifyNext:
@@ -91,8 +152,11 @@ def playback_notify(self, type):
         print "kSpPlaybackNotifyRepeatDisabled"
     elif type == lib.kSpPlaybackNotifyBecameActive:
         print "kSpPlaybackNotifyBecameActive"
+        session.activate()
     elif type == lib.kSpPlaybackNotifyBecameInactive:
         print "kSpPlaybackNotifyBecameInactive"
+        device.release()
+        session.deactivate()
     elif type == lib.kSpPlaybackNotifyPlayTokenLost:
         print "kSpPlaybackNotifyPlayTokenLost"
     elif type == lib.kSpPlaybackEventAudioFlush:
