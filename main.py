@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 #First run the command avahi-publish-service TestConnect _spotify-connect._tcp 4000 VERSION=1.0 CPath=/login/_zeroconf
 #TODO: Add error checking
 import os
