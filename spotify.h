@@ -1,8 +1,8 @@
 #ifndef SPOTIFY_H
 #define SPOTIFY_H
 
-#include <stdint.h>
 #include <stddef.h>
+#include <stdint.h>
 #include <stdbool.h>
 
 typedef enum {
@@ -66,9 +66,9 @@ typedef enum {
 } SpSampleType;
 
 typedef enum {
-    kSpBitrate160k = 0,
-    kSpBitrate320k = 1,
-    kSpBitrate90k = 2,
+    kSpBitrate90k = 0,
+    kSpBitrate160k = 1,
+    kSpBitrate320k = 2,
 } SpBitrate;
 
 typedef enum {
@@ -89,22 +89,25 @@ typedef struct {
     uint32_t buffer_size; // 0x100000
     uint8_t *app_key;
     uint32_t app_key_size;
-    char *deviceId;
-    char *remoteName;
-    char *brandName;
-    char *modelName;
-    uint32_t deviceType; // SpDeviceType
+    const char *deviceId;
+    const char *remoteName;
+    const char *brandName;
+    const char *modelName;
+    char *client_id;
+    char *client_secret;
+    uint32_t deviceType;
     void (*error_callback)(SpError error, void *userdata);
     void *userdata;
 } SpConfig;
 
 typedef struct {
     char publicKey[0x96];
-    char deviceId[0x40];
-    char activeUser[0x40];
-    char remoteName[0x40];
+    char deviceId[0x41];
+    char activeUser[0x41];
+    char remoteName[0x41];
     char accountReq[0x10];
     char deviceType[0x10];
+    char libraryVersion[0x1f];
 } SpZeroConfVars;
 
 typedef struct {

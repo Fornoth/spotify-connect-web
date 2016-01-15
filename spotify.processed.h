@@ -7,6 +7,14 @@
 
 
 
+# 1 "/usr/lib/gcc/arm-linux-gnueabi/4.9/include/stddef.h" 1 3 4
+# 147 "/usr/lib/gcc/arm-linux-gnueabi/4.9/include/stddef.h" 3 4
+typedef int ptrdiff_t;
+# 212 "/usr/lib/gcc/arm-linux-gnueabi/4.9/include/stddef.h" 3 4
+typedef unsigned int size_t;
+# 324 "/usr/lib/gcc/arm-linux-gnueabi/4.9/include/stddef.h" 3 4
+typedef unsigned int wchar_t;
+# 5 "spotify.h" 2
 # 1 "/usr/lib/gcc/arm-linux-gnueabi/4.9/include/stdint.h" 1 3 4
 # 9 "/usr/lib/gcc/arm-linux-gnueabi/4.9/include/stdint.h" 3 4
 # 1 "/usr/include/stdint.h" 1 3 4
@@ -123,14 +131,6 @@ typedef long long int intmax_t;
 
 typedef unsigned long long int uintmax_t;
 # 10 "/usr/lib/gcc/arm-linux-gnueabi/4.9/include/stdint.h" 2 3 4
-# 5 "spotify.h" 2
-# 1 "/usr/lib/gcc/arm-linux-gnueabi/4.9/include/stddef.h" 1 3 4
-# 147 "/usr/lib/gcc/arm-linux-gnueabi/4.9/include/stddef.h" 3 4
-typedef int ptrdiff_t;
-# 212 "/usr/lib/gcc/arm-linux-gnueabi/4.9/include/stddef.h" 3 4
-typedef unsigned int size_t;
-# 324 "/usr/lib/gcc/arm-linux-gnueabi/4.9/include/stddef.h" 3 4
-typedef unsigned int wchar_t;
 # 6 "spotify.h" 2
 # 1 "/usr/lib/gcc/arm-linux-gnueabi/4.9/include/stdbool.h" 1 3 4
 # 7 "spotify.h" 2
@@ -196,9 +196,9 @@ typedef enum {
 } SpSampleType;
 
 typedef enum {
-    kSpBitrate160k = 0,
-    kSpBitrate320k = 1,
-    kSpBitrate90k = 2,
+    kSpBitrate90k = 0,
+    kSpBitrate160k = 1,
+    kSpBitrate320k = 2,
 } SpBitrate;
 
 typedef enum {
@@ -219,10 +219,12 @@ typedef struct {
     uint32_t buffer_size;
     uint8_t *app_key;
     uint32_t app_key_size;
-    char *deviceId;
-    char *remoteName;
-    char *brandName;
-    char *modelName;
+    const char *deviceId;
+    const char *remoteName;
+    const char *brandName;
+    const char *modelName;
+    char *client_id;
+    char *client_secret;
     uint32_t deviceType;
     void (*error_callback)(SpError error, void *userdata);
     void *userdata;
@@ -230,11 +232,12 @@ typedef struct {
 
 typedef struct {
     char publicKey[0x96];
-    char deviceId[0x40];
-    char activeUser[0x40];
-    char remoteName[0x40];
+    char deviceId[0x41];
+    char activeUser[0x41];
+    char remoteName[0x41];
     char accountReq[0x10];
     char deviceType[0x10];
+    char libraryVersion[0x1f];
 } SpZeroConfVars;
 
 typedef struct {
@@ -313,8 +316,8 @@ SpError SpConnectionLoginZeroConf(const char *username, const char *blob,
         const char *clientKey);
 SpError SpConnectionLoginOauthToken(const char *token);
 
-_Bool SpConnectionIsLoggedIn();
-SpError SpConnectionLogout();
+_Bool SpConnectionIsLoggedIn(void);
+SpError SpConnectionLogout(void);
 
 SpError SpRegisterConnectionCallbacks(
         const SpConnectionCallbacks *callbacks, void *userdata);

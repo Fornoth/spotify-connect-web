@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 #First run the command avahi-publish-service TestConnect _spotify-connect._tcp 4000 VERSION=1.0 CPath=/login/_zeroconf
 #TODO: Add error checking
+#TODO: Show when request fails on webpage
 import os
 from flask import Flask, request, abort, jsonify, render_template, redirect, flash, url_for
 from flask_bootstrap import Bootstrap
@@ -142,7 +143,6 @@ def login_password():
     else:
         flash('Waiting for spotify', 'info')
         connect_app.login(username, password=password)
-        sleep
 
     return redirect(url_for('index'))
 

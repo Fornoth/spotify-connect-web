@@ -49,6 +49,9 @@ class Connect:
 
         userdata = ffi.new_handle(self)
 
+        if self.args.debug:
+            lib.SpRegisterDebugCallbacks(debug_callbacks, userdata)
+
         self.config = {
              'version': 4,
              'buffer': C.malloc(0x100000),
@@ -59,17 +62,20 @@ class Connect:
              'remoteName': ffi.new('char[]', self.args.name),
              'brandName': ffi.new('char[]', 'DummyBrand'),
              'modelName': ffi.new('char[]', 'DummyModel'),
+             'client_id': ffi.new('char[]', '0'),
              'deviceType': lib.kSpDeviceTypeAudioDongle,
              'error_callback': error_cb,
              'userdata': userdata,
         }
 
         init = ffi.new('SpConfig *' , self.config)
-        print "SpInit: {}".format(lib.SpInit(init))
+        init_status = lib.SpInit(init)
+        print "SpInit: {}".format(init_status)
+        if init_status != 0:
+            print "SpInit failed, exiting"
+            sys.exit(1)
 
         lib.SpRegisterConnectionCallbacks(connection_callbacks, userdata)
-        if self.args.debug:
-            lib.SpRegisterDebugCallbacks(debug_callbacks, userdata)
         lib.SpRegisterPlaybackCallbacks(playback_callbacks, userdata)
 
         mixer_volume = int(mixer.getvolume()[0] * 655.35)
