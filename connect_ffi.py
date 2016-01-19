@@ -4,7 +4,7 @@ ffi = FFI()
 print "Loading Spotify library..."
 #TODO: Use absolute paths for open() and stuff
 #Header generated with cpp spotify.h > spotify.processed.h && sed -i 's/__extension__//g' spotify.processed.h
-with open("spotify.processed.h") as file:
+with open(os.path.join(sys.path[0], "spotify.processed.h")) as file:
     header = file.read()
 
 ffi.cdef(header)
