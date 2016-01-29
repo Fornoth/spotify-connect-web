@@ -1,3 +1,4 @@
+from __future__ import division
 import argparse
 import alsaaudio as alsa
 import json
@@ -5,11 +6,11 @@ import Queue
 from threading import Thread
 import threading
 from connect_ffi import ffi, lib
-from __future__ import division
+
 
 RATE = 44100
 CHANNELS = 2
-PERIODSIZE = 44100 / 4 # 0.25s
+PERIODSIZE = int(44100 / 4) # 0.25s
 SAMPLESIZE = 2 # 16 bit integer
 MAXPERIODS = int(0.5 * RATE / PERIODSIZE) # 0.5s Buffer
 
@@ -87,12 +88,14 @@ class AlsaSink:
 session = PlaybackSession()
 device = AlsaSink(session, args)
 mixer = alsa.Mixer(args.mixer)
-#Gets mimimum volume Db
+
+#Gets mimimum volume Db for the mixer
 volume_range = (mixer.getrange()[1]-mixer.getrange()[0]) / 100
-selected_volume_range = args.dbrange
-if selected_volume_range < volume_range or selected_volume_range = 0:
+selected_volume_range = int(args.dbrange)
+if selected_volume_range > volume_range or selected_volume_range == 0:
     selected_volume_range = volume_range
 min_volume_range = (1 - selected_volume_range / volume_range) * 100
+print "min_volume_range: {}".format(min_volume_range)
 
 def userdata_wrapper(f):
     def inner(*args):
@@ -220,12 +223,16 @@ def playback_seek(self, millis):
 @userdata_wrapper
 def playback_volume(self, volume):
     print "playback_volume: {}".format(volume)
-    if volume = 0:
+    if volume == 0:
         mixer.setmute(1)
-    else
-        if mixer.getmute()[0] =  1:
+        print "Mute activated"
+    else:
+        if mixer.getmute()[0] ==  1:
             mixer.setmute(0)
-    mixer.setvolume(int(min_volume_range + ((100 - min_volume_range) / (volume / 655.35)) * 100))
+            print "Mute deactivated"
+        corected_playback_volume = int(min_volume_range + ((volume / 655.35) * (100 - min_volume_range) / 100))
+        print "corected_playback_volume: {}".format(corected_playback_volume)
+        mixer.setvolume(corected_playback_volume)
 
 connection_callbacks = ffi.new('SpConnectionCallbacks *', [
     connection_notify,
