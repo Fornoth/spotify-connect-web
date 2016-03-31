@@ -1,6 +1,7 @@
 cffi>=0.9.2
 Flask>=0.10.1
 Flask-Bootstrap>=3.3.2.1
+Flask-Cors==2.1.2
 pycparser>=2.10
 pyalsaaudio>=0.7
 gevent>=1.0.1

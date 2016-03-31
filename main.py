@@ -3,16 +3,43 @@
 #TODO: Add error checking
 #TODO: Show when request fails on webpage
 import os
+import argparse
+import re
 from flask import Flask, request, abort, jsonify, render_template, redirect, flash, url_for
 from flask_bootstrap import Bootstrap
+from flask.ext.cors import CORS
 from gevent.wsgi import WSGIServer
 from gevent import spawn_later, sleep
 from connect_ffi import ffi, lib
 from connect import Connect
 from utils import get_zeroconf_vars, get_metadata, get_image_url
 
+web_arg_parser = argparse.ArgumentParser(add_help=False)
+
+#Not a tuple, evaluates the same as "" + ""
+cors_help = (
+    "enable CORS support for this host (for the web api). "
+    "Must be in the format <protocol>://<hostname>:<port>. "
+    "Port can be excluded if its 80 (http) or 443 (https). "
+    "Can be specified multiple times"
+)
+
+
+def validate_cors_host(host):
+    host_regex = re.compile(r'^(http|https)://[a-zA-Z0-9][a-zA-Z0-9-.]+(:[0-9]{1,5})?$')
+    result = re.match(host_regex, host)
+    if result is None:
+        raise argparse.ArgumentTypeError('%s is not in the format <protocol>://<hostname>:<port>. Protocol must be http or https' % host)
+    return host
+
+web_arg_parser.add_argument('--cors', help=cors_help, action='append', type=validate_cors_host)
+args = web_arg_parser.parse_known_args()[0]
+
 app = Flask(__name__)
 Bootstrap(app)
+#Add CORS headers to API requests for specified hosts
+CORS(app, resources={r"/api/*": {"origins": args.cors}})
+
 #Serve bootstrap files locally instead of from a CDN
 app.config['BOOTSTRAP_SERVE_LOCAL'] = True
 app.secret_key = os.urandom(24)
@@ -26,7 +53,7 @@ def web_error_callback(error, userdata):
     if error == lib.kSpErrorLoginBadCredentials:
         invalid_login = True
 
-connect_app = Connect(web_error_callback)
+connect_app = Connect(web_error_callback, web_arg_parser)
 
 if os.environ.get('DEBUG') or connect_app.args.debug:
     app.debug = True

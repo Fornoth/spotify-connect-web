@@ -10,12 +10,16 @@ from console_callbacks import audio_arg_parser, mixer, error_callback, connectio
 from utils import print_zeroconf_vars
 
 class Connect:
-    def __init__(self, error_cb = error_callback):
+    def __init__(self, error_cb = error_callback, web_arg_parser = None):
         pass_required = False
         if __name__ == "__main__":
             #Require username and password when used without a web server
             pass_required = True
-        arg_parser = argparse.ArgumentParser(description='Web interface for Spotify Connect', parents=[audio_arg_parser])
+        arg_parser_list = [audio_arg_parser]
+        if web_arg_parser:
+            arg_parser_list.append(web_arg_parser)
+
+        arg_parser = argparse.ArgumentParser(description='Web interface for Spotify Connect', parents=arg_parser_list)
         arg_parser.add_argument('--debug', '-d', help='enable libspotify_embedded/flask debug output', action="store_true")
         arg_parser.add_argument('--key', '-k', help='path to spotify_appkey.key (can be obtained from https://developer.spotify.com/my-account/keys )', default='spotify_appkey.key')
         arg_parser.add_argument('--username', '-u', help='your spotify username', required=pass_required)
