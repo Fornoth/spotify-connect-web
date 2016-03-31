@@ -107,12 +107,12 @@ def playback_volume():
 
 @app.route('/api/playback/volume', methods=['POST'], endpoint='playback_volume-post')
 def playback_volume():
-    volume = int(request.form.get('value'))
-    if not volume:
+    volume = request.form.get('value')
+    if volume is None:
         return jsonify({
             'error': 'value must be set'
         }), 400
-    lib.SpPlaybackUpdateVolume(volume)
+    lib.SpPlaybackUpdateVolume(int(volume))
     return '', 204
 
 #Info routes
