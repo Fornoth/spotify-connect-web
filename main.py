@@ -7,7 +7,7 @@ import argparse
 import re
 from flask import Flask, request, abort, jsonify, render_template, redirect, flash, url_for
 from flask_bootstrap import Bootstrap
-from flask.ext.cors import CORS
+from flask_cors import CORS
 from gevent.wsgi import WSGIServer
 from gevent import spawn_later, sleep
 from connect_ffi import ffi, lib
