@@ -21,6 +21,8 @@ class Connect:
         arg_parser.add_argument('--credentials', '-c', help='File to load and save credentials from/to', default='credentials.json')
         self.args = arg_parser.parse_args()
 
+        print "Using libspotify_embedded version: {}".format(ffi.string(lib.SpGetLibraryVersion()))
+
         try:
             with open(self.args.key) as f:
                 app_key = ffi.new('uint8_t *')
