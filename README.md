@@ -24,16 +24,15 @@ If you just want to get running, you can use a pre-built chroot with the latest 
 * Build the container via `docker build -t spotify-connect-web .`
 * Run it via `~/run-with-docker`.
 
-## Installation
-Run `pip install -r requirements.txt` and also `apt-get install python-gevent` (Can't be installed from pip (on debian based systems) because of a [bug](https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=770616)) (Other distributions can just run `pip install gevent`)
+## Installation from source
+Requires development packages for `Python`, `FFI`, and `Alsa`  
+ - For Debian/Ubuntu: `apt-get install python-dev libffi-dev libasound2-dev`  
 
-### Pyalsaaudio
-Can either be installed via `pip` (requires the ALSA headers (`libasound2-dev` package on Debian/Ubuntu)) or the `python-alsaaudio` package on Debian/Ubuntu
+To install the other requirements: `pip install -r requirements.txt`
 
 ## Usage
-Tested against the rocki `libspotify_embedded_shared.so`
 ```
-usage: main.py [-h] [--device DEVICE] [--mixer MIXER] [--dbrange RANGE}] [--debug] [--key KEY]
+usage: main.py [-h] [--device DEVICE] [--mixer MIXER] [--dbrange RANGE] [--debug] [--key KEY]
                [--username USERNAME] [--password PASSWORD] [--name NAME]
                [--bitrate {90,160,320}] [--credentials CREDENTIALS]
 
@@ -63,7 +62,7 @@ optional arguments:
 `libspotify_embedded_shared.so` must be in the same directory as the python scripts.  
 Also requires a spotify premium account, and the `spotify_appkey.key` (the binary version) file needs to be obtained from https://developer.spotify.com/my-account/keys , and needs to placed in the python scripts directory, or have the path specified with the `-k` parameter
 
-### Launching
+### Launching from source
 - Running without debug output `LD_LIBRARY_PATH=$PWD python main.py`
 - Running with debug output `LD_LIBRARY_PATH=$PWD python main.py -d`
 - Run with only flask debug output (flask debug output allows you to see the python exceptions that are thrown) `DEBUG=true LD_LIBRARY_PATH=$PWD python main.py`
