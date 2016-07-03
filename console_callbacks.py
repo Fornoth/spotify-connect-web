@@ -89,6 +89,13 @@ session = PlaybackSession()
 device = AlsaSink(session, args)
 mixer = alsa.Mixer(args.mixer)
 
+try:
+	mixer.getmute()
+	mute_available = True
+except alsa.ALSAAudioError:
+	mute_available = False
+	print "Device has no native mute"
+
 #Gets mimimum volume Db for the mixer
 volume_range = (mixer.getrange()[1]-mixer.getrange()[0]) / 100
 selected_volume_range = int(args.dbrange)
@@ -224,10 +231,11 @@ def playback_seek(self, millis):
 def playback_volume(self, volume):
     print "playback_volume: {}".format(volume)
     if volume == 0:
-        mixer.setmute(1)
-        print "Mute activated"
+        if mute_available:
+            mixer.setmute(1)
+            print "Mute activated"
     else:
-        if mixer.getmute()[0] ==  1:
+        if mute_available and mixer.getmute()[0] ==  1:
             mixer.setmute(0)
             print "Mute deactivated"
         corected_playback_volume = int(min_volume_range + ((volume / 655.35) * (100 - min_volume_range) / 100))
