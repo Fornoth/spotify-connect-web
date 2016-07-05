@@ -15,7 +15,12 @@ SAMPLESIZE = 2 # 16 bit integer
 MAXPERIODS = int(0.5 * RATE / PERIODSIZE) # 0.5s Buffer
 
 audio_arg_parser = argparse.ArgumentParser(add_help=False)
-audio_arg_parser.add_argument('--device', '-D', help='alsa output device', default='default')
+
+playback_device_group = audio_arg_parser.add_mutually_exclusive_group()
+playback_device_group.add_argument('--device', '-D', help='alsa output device (deprecated, use --playback_device)', default='default')
+playback_device_group.add_argument('--playback_device', '-o', help='alsa output device (get name from aplay -L)', default='default')
+
+audio_arg_parser.add_argument('--mixer_device_index', help='alsa card index of the mixer device', type=int)
 audio_arg_parser.add_argument('--mixer', '-m', help='alsa mixer name for volume control', default=alsa.mixers()[0])
 audio_arg_parser.add_argument('--dbrange', '-r', help='alsa mixer volume range in Db', default=0)
 args = audio_arg_parser.parse_known_args()[0]
@@ -45,10 +50,15 @@ class AlsaSink:
     def acquire(self):
         if self._session.is_active():
             try:
-                pcm = alsa.PCM(
-                    type = alsa.PCM_PLAYBACK,
-                    mode = alsa.PCM_NORMAL,
-                    card = self._args.device)
+                pcm_args = {
+                    'type': alsa.PCM_PLAYBACK,
+                    'mode': alsa.PCM_NORMAL,
+                }
+                if self._args.playback_device != 'default':
+                    pcm_args['device'] = self._args.playback_device
+                else:
+                    pcm_args['card'] = self._args.device
+                pcm = alsa.PCM(**pcm_args)
 
                 pcm.setchannels(CHANNELS)
                 pcm.setrate(RATE)
@@ -87,14 +97,18 @@ class AlsaSink:
 
 session = PlaybackSession()
 device = AlsaSink(session, args)
-mixer = alsa.Mixer(args.mixer)
+mixer_card_arg = {}
+if args.mixer_device_index:
+    mixer_card_arg['cardindex'] = args.mixer_device_index
+
+mixer = alsa.Mixer(args.mixer, **mixer_card_arg)
 
 try:
-	mixer.getmute()
-	mute_available = True
+    mixer.getmute()
+    mute_available = True
 except alsa.ALSAAudioError:
-	mute_available = False
-	print "Device has no native mute"
+    mute_available = False
+    print "Device has no native mute"
 
 #Gets mimimum volume Db for the mixer
 volume_range = (mixer.getrange()[1]-mixer.getrange()[0]) / 100
