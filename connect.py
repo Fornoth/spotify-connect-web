@@ -11,7 +11,10 @@ from utils import print_zeroconf_vars
 
 class Connect:
     def __init__(self, error_cb = error_callback, web_arg_parser = None):
-        arg_parser = argparse.ArgumentParser(description='Web interface for Spotify Connect', parents=[audio_arg_parser])
+        arg_parsers = [audio_arg_parser]
+        if web_arg_parser:
+            arg_parsers.append(web_arg_parser)
+        arg_parser = argparse.ArgumentParser(description='Web interface for Spotify Connect', parents=arg_parsers)
         arg_parser.add_argument('--debug', '-d', help='enable libspotify_embedded/flask debug output', action="store_true")
         arg_parser.add_argument('--key', '-k', help='path to spotify_appkey.key (can be obtained from https://developer.spotify.com/my-account/keys )', default='spotify_appkey.key')
         arg_parser.add_argument('--username', '-u', help='your spotify username')
