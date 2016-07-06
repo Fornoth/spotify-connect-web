@@ -104,10 +104,14 @@ Generated with `cpp spotify.h > spotify.processed.h && sed -i 's/__extension__//
 ## Web server
 Server runs on port `4000`
 
-### Logging in
-There's a login button on the webpage to enter a username and password, or zeroconf (avahi) login can be used after executing the command `avahi-publish-service TestConnect _spotify-connect._tcp 4000 VERSION=1.0 CPath=/login/_zeroconf` (`avahi-publish-service` is in the `avahi-utils` package).
-
+## Logging in
 After logging in successfully, a blob is sent by Spotify and saved to disk (to `credentials.json` by default), and is use to login automatically on next startup.
+
+### Username/Password
+There's a login button on the webpage to enter a username and password, or you can pass the `--username` and `--password` arguments
+
+### Passwordless/Multiuser (Zeroconf/Avahi)
+Zeroconf (Avahi) login can be used after executing the command `avahi-publish-service TestConnect _spotify-connect._tcp 4000 VERSION=1.0 CPath=/login/_zeroconf` (`avahi-publish-service` is in the `avahi-utils` package).
 
 ## Support
 You can [file an issue](https://github.com/Fornoth/spotify-connect-web/issues/new) or come to the [Gitter chat](https://gitter.im/sashahilton00/spotify-connect-resources)
