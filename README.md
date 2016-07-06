@@ -49,7 +49,9 @@ To install the other requirements: `pip install -r requirements.txt`
 
 ## Usage
 ```
-usage: main.py [-h] [--device DEVICE] [--mixer MIXER] [--dbrange RANGE] [--debug] [--key KEY]
+usage: main.py [-h] [--device DEVICE | --playback_device PLAYBACK_DEVICE]
+               [--mixer_device_index MIXER_DEVICE_INDEX] [--mixer MIXER]
+               [--dbrange DBRANGE] [--cors CORS] [--debug] [--key KEY]
                [--username USERNAME] [--password PASSWORD] [--name NAME]
                [--bitrate {90,160,320}] [--credentials CREDENTIALS]
 
@@ -58,13 +60,22 @@ Web interface for Spotify Connect
 optional arguments:
   -h, --help            show this help message and exit
   --device DEVICE, -D DEVICE
-                        alsa output device
+                        alsa output device (deprecated, use --playback_device)
+  --playback_device PLAYBACK_DEVICE, -o PLAYBACK_DEVICE
+                        alsa output device (get name from aplay -L)
+  --mixer_device_index MIXER_DEVICE_INDEX
+                        alsa card index of the mixer device
   --mixer MIXER, -m MIXER
                         alsa mixer name for volume control
-  --dbrange RANGE, -r RANGE
-  						alsa mixer volume range in Db
+  --dbrange DBRANGE, -r DBRANGE
+                        alsa mixer volume range in Db
+  --cors CORS           enable CORS support for this host (for the web api).
+                        Must be in the format <protocol>://<hostname>:<port>.
+                        Port can be excluded if its 80 (http) or 443 (https).
+                        Can be specified multiple times
   --debug, -d           enable libspotify_embedded/flask debug output
-  --key KEY, -k KEY     path to spotify_appkey.key
+  --key KEY, -k KEY     path to spotify_appkey.key (can be obtained from
+                        https://developer.spotify.com/my-account/keys )
   --username USERNAME, -u USERNAME
                         your spotify username
   --password PASSWORD, -p PASSWORD
@@ -74,6 +85,7 @@ optional arguments:
                         Sets bitrate of audio stream (may not actually work)
   --credentials CREDENTIALS, -c CREDENTIALS
                         File to load and save credentials from/to
+
 ```
 
 `libspotify_embedded_shared.so` must be in the same directory as the python scripts.  
@@ -96,3 +108,6 @@ Server runs on port `4000`
 There's a login button on the webpage to enter a username and password, or zeroconf (avahi) login can be used after executing the command `avahi-publish-service TestConnect _spotify-connect._tcp 4000 VERSION=1.0 CPath=/login/_zeroconf` (`avahi-publish-service` is in the `avahi-utils` package).
 
 After logging in successfully, a blob is sent by Spotify and saved to disk (to `credentials.json` by default), and is use to login automatically on next startup.
+
+## Support
+You can [file an issue](https://github.com/Fornoth/spotify-connect-web/issues/new) or come to the [Gitter chat](https://gitter.im/sashahilton00/spotify-connect-resources)
