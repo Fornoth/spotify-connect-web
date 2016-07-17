@@ -3,6 +3,7 @@
 #TODO: Add error checking
 #TODO: Show when request fails on webpage
 import os
+import sys
 import argparse
 import re
 from flask import Flask, request, abort, jsonify, render_template, redirect, flash, url_for
@@ -35,7 +36,7 @@ def validate_cors_host(host):
 web_arg_parser.add_argument('--cors', help=cors_help, action='append', type=validate_cors_host)
 args = web_arg_parser.parse_known_args()[0]
 
-app = Flask(__name__)
+app = Flask(__name__, root_path=sys.path[0])
 Bootstrap(app)
 #Add CORS headers to API requests for specified hosts
 CORS(app, resources={r"/api/*": {"origins": args.cors}})
