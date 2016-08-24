@@ -5,3 +5,4 @@ Flask-Cors==2.1.2
 pycparser>=2.10
 pyalsaaudio>=0.7
 gevent>=1.0.1
+pylast>=1.6.0

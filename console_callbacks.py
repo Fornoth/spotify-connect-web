@@ -6,6 +6,7 @@ import Queue
 from threading import Thread
 import threading
 from connect_ffi import ffi, lib
+from lastfm import lastfm
 
 
 RATE = 44100
@@ -165,11 +166,14 @@ def playback_notify(self, type):
     if type == lib.kSpPlaybackNotifyPlay:
         print "kSpPlaybackNotifyPlay"
         device.acquire()
+        lastfm.play()
     elif type == lib.kSpPlaybackNotifyPause:
         print "kSpPlaybackNotifyPause"
+        lastfm.pause()
         device.release()
     elif type == lib.kSpPlaybackNotifyTrackChanged:
         print "kSpPlaybackNotifyTrackChanged"
+        lastfm.track_changed()
     elif type == lib.kSpPlaybackNotifyNext:
         print "kSpPlaybackNotifyNext"
     elif type == lib.kSpPlaybackNotifyPrev:

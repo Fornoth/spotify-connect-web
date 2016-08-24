@@ -5,3 +5,4 @@ libspotify_embedded_shared.so
 venv
 credentials.json
 spotify-connect-web.tar.gz
+lastfm_credentials.json

@@ -7,11 +7,12 @@ import json
 import uuid
 from connect_ffi import ffi, lib, C
 from console_callbacks import audio_arg_parser, mixer, error_callback, connection_callbacks, debug_callbacks, playback_callbacks, playback_setup
+from lastfm import lastfm_arg_parser
 from utils import print_zeroconf_vars
 
 class Connect:
     def __init__(self, error_cb = error_callback, web_arg_parser = None):
-        arg_parsers = [audio_arg_parser]
+        arg_parsers = [audio_arg_parser, lastfm_arg_parser]
         if web_arg_parser:
             arg_parsers.append(web_arg_parser)
         arg_parser = argparse.ArgumentParser(description='Web interface for Spotify Connect', parents=arg_parsers)
