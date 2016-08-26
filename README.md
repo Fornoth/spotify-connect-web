@@ -121,7 +121,7 @@ After logging in successfully, a blob is sent by Spotify and saved to disk (to `
 There's a login button on the webpage to enter a username and password, or you can pass the `--username` and `--password` arguments
 
 ### Last.fm
-If you want to enable Last.fm scrobbling, you should first obtain API key at http://www.last.fm/api/account/create. You can pass your `--lastfm_username`, `--lastfm_password`, `--lastfm_api_key` and `--lastfm_api_secret` on the command line. You can also use `lastfm_credentials.json` and pass `--lastfm_credentials lastfm_credentials.json` to the command line. You need to explicitly pass the credentials file, otherwise the Last.fm module will not launch. 
+If you want to enable Last.fm scrobbling, you should first obtain API key at http://www.last.fm/api/account/create. You can pass your `--lastfm_username`, `--lastfm_password`, `--lastfm_api_key` and `--lastfm_api_secret` on the command line. You can also use `lastfm_credentials.json` and pass `--lastfm_credentials lastfm_credentials.json` to the command line. You can find an example of the file format in `lastfm_credentials.json.dist`. You need to explicitly pass the credentials file, otherwise the Last.fm module will not launch. 
 
 ### Passwordless/Multiuser (Zeroconf/Avahi)
 Zeroconf (Avahi) login can be used after executing the command `avahi-publish-service TestConnect _spotify-connect._tcp 4000 VERSION=1.0 CPath=/login/_zeroconf` (`avahi-publish-service` is in the `avahi-utils` package).
