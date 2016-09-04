@@ -19,7 +19,7 @@ Just run `./spotify-connect-web`  in the extracted directory
 Supports the same options as the regular version
 
 
-## Quickstart using a pre-built chroot
+## Quickstart using a pre-built chroot (this method is outdated for now)
 If you just want to get running, you can use a pre-built chroot with the latest version installed.
 
     curl -O http://spotify-connect-web.s3-website.eu-central-1.amazonaws.com/spotify-connect-web.sh
