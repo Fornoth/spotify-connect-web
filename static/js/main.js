@@ -32,9 +32,21 @@ function playbackControl(e) {
         $('[data-action=pause]').hide();
         $('[data-action=play]').show();
     } else if (action === 'shuffle') {
-        $('[data-action=shuffle]').toggleClass('active');
+        var shuffle = $('[data-action=shuffle]');
+        if (shuffle.hasClass('active')) {
+            ajaxSettings.url += '/disable'
+        } else {
+            ajaxSettings.url += '/enable'
+        }
+        shuffle.toggleClass('active');
     } else if (action === 'repeat') {
-        $('[data-action=repeat]').toggleClass('active');
+        var repeat = $('[data-action=repeat]');
+        if (repeat.hasClass('active')) {
+            ajaxSettings.url += '/disable'
+        } else {
+            ajaxSettings.url += '/enable'
+        }
+        repeat.toggleClass('active');
     } else if (action === 'volume') {
         ajaxSettings.method = 'POST';
         ajaxSettings.data = {value: Math.round(e.currentTarget.value * 655.35)}
