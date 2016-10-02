@@ -9,8 +9,8 @@ For armv7+ (Rpi 2, Rpi 3, etc, but not Rpi 1/Rpi Zero) devices only for now
 Grab the latest release from [Releases](https://github.com/Fornoth/spotify-connect-web/releases)
 ### Installation instructions (example):
 ```
-wget https://github.com/Fornoth/spotify-connect-web/releases/download/0.0.2-alpha/spotify-connect-web_0.0.2-alpha.tar.gz
-tar zxvf spotify-connect-web_0.0.2-alpha.tar.gz
+wget https://github.com/Fornoth/spotify-connect-web/releases/download/0.0.3-alpha/spotify-connect-web_0.0.3-alpha.tar.gz
+tar zxvf spotify-connect-web_0.0.3-alpha.tar.gz
 ```
 A `spotify-connect-web` directory will be created, and you'll need to put your `spotify_appkey.key` in that directory
 
