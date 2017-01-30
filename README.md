@@ -19,7 +19,7 @@ Just run `./spotify-connect-web`  in the extracted directory
 Supports the same options as the regular version
 
 
-## Quickstart using a pre-built chroot 
+## Quickstart using a pre-built chroot
 Grab the latest release from [Releases](https://github.com/Fornoth/spotify-connect-web/releases)
 
 If you just want to get running, you can use a pre-built chroot with the latest version installed.
@@ -102,7 +102,9 @@ optional arguments:
 ```
 
 `libspotify_embedded_shared.so` must be in the same directory as the python scripts.  
-Also requires a spotify premium account, and the `spotify_appkey.key` (the binary version) file needs to be obtained from https://developer.spotify.com/my-account/keys , and needs to placed in the python scripts directory, or have the path specified with the `-k` parameter
+Also requires a spotify premium account, and the `spotify_appkey.key` (the binary version) file can be be obtained from https://developer.spotify.com/technologies/libspotify/application-keys/. Fill the 'App-key Request Form' in, send it and wait until you get the key sent via email (it can take a few weeks...).
+
+After receiving it, you need to place it in the python scripts directory, or have the path specified with the `-k` parameter
 
 ### Launching from source
 - Running without debug output `LD_LIBRARY_PATH=$PWD python main.py`
@@ -124,7 +126,7 @@ After logging in successfully, a blob is sent by Spotify and saved to disk (to `
 There's a login button on the webpage to enter a username and password, or you can pass the `--username` and `--password` arguments
 
 ### Last.fm
-If you want to enable Last.fm scrobbling, you should first obtain API key at http://www.last.fm/api/account/create. You can pass your `--lastfm_username`, `--lastfm_password`, `--lastfm_api_key` and `--lastfm_api_secret` on the command line. You can also use `lastfm_credentials.json` and pass `--lastfm_credentials lastfm_credentials.json` to the command line. You can find an example of the file format in `lastfm_credentials.json.dist`. You need to explicitly pass the credentials file, otherwise the Last.fm module will not launch. 
+If you want to enable Last.fm scrobbling, you should first obtain API key at http://www.last.fm/api/account/create. You can pass your `--lastfm_username`, `--lastfm_password`, `--lastfm_api_key` and `--lastfm_api_secret` on the command line. You can also use `lastfm_credentials.json` and pass `--lastfm_credentials lastfm_credentials.json` to the command line. You can find an example of the file format in `lastfm_credentials.json.dist`. You need to explicitly pass the credentials file, otherwise the Last.fm module will not launch.
 
 ### Passwordless/Multiuser (Zeroconf/Avahi)
 Zeroconf (Avahi) login can be used after executing the command `avahi-publish-service TestConnect _spotify-connect._tcp 4000 VERSION=1.0 CPath=/login/_zeroconf` (`avahi-publish-service` is in the `avahi-utils` package).
