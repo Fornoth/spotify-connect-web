@@ -113,7 +113,7 @@ except alsa.ALSAAudioError:
 
 #Gets mimimum volume Db for the mixer
 volume_range = (mixer.getrange()[1]-mixer.getrange()[0]) / 100
-selected_volume_range = int(args.dbrange)
+selected_volume_range = int(args.dbrange) / 100
 if selected_volume_range > volume_range or selected_volume_range == 0:
     selected_volume_range = volume_range
 min_volume_range = (1 - selected_volume_range / volume_range) * 100
